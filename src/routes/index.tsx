@@ -8,8 +8,7 @@ import {
   CheckCircle2, Star, ExternalLink, Layers, Database, GitBranch,
   Users, Building2, Activity, Watch, Stethoscope, ChevronDown,
 } from "lucide-react";
-import portraitAsset from "@/assets/manoj.jpg.asset.json";
-const portrait = portraitAsset.url;
+import portrait from "@/assets/manoj.jpg";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -230,9 +229,16 @@ function Home() {
                 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }}
                 className="mt-6 font-display text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
               >
-                Senior Mobile <br className="hidden sm:block" />
-                <span className="text-gradient">Application Architect</span>
+                Senior Software <br className="hidden sm:block" />
+                <span className="text-gradient">Architect</span>
               </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}
+                className="mt-3 text-lg font-semibold tracking-wide text-muted-foreground sm:text-xl"
+              >
+                Mobile · Web · Node · Angular · Cloud Fullstack
+              </motion.p>
 
               <motion.p
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
@@ -283,9 +289,9 @@ function Home() {
               <div className="relative overflow-hidden rounded-[2rem] glass-strong shadow-card">
                 <img
                   src={portrait}
-                  alt="Manoj Barad — Senior Mobile Application Architect"
-                  width={1024}
-                  height={1280}
+                  alt="Manoj Barad — Senior Software Architect"
+                  width={1200}
+                  height={1200}
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/70 to-transparent p-6">
