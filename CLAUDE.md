@@ -12,28 +12,31 @@ Live deployment: https://portfolio-site-roan-mu-47.vercel.app · remote: `github
 
 ```bash
 npm run dev      # vite dev server
-npm run build    # vite build (nitro, cloudflare target by default)
+npm run build    # vite build; nitro picks the target from the environment
 npm run preview  # serve the production build
 npm run lint     # eslint (prettier runs as an eslint rule — lint fails on format drift)
 npm run format   # prettier --write .
 ```
 
-No test runner is configured. There is no `typecheck` script; use `npx tsc --noEmit` for type checking.
+No test runner is configured. There is no `typecheck` script; use `./node_modules/.bin/tsc --noEmit` — plain `npx tsc` resolves to the unrelated `tsc` package on npm and fails with a confusing message.
 
-`package-lock.json` is the committed lockfile (npm), but `bunfig.toml` is also present and enforces a 24h `minimumReleaseAge` supply-chain guard with an explicit allowlist — do not add entries to `minimumReleaseAgeExcludes` without asking.
+`package-lock.json` is the committed lockfile (npm). `bunfig.toml` enforces a 24h `minimumReleaseAge` supply-chain guard for anyone installing with bun; its allowlist was Lovable-only and is now empty.
 
 ## Architecture
 
-TanStack Start (SSR) + React 19 + Vite 8 + Tailwind v4, scaffolded from a Lovable template.
+TanStack Start (SSR) + React 19 + Vite 8 + Tailwind v4.
 
-**Vite config is intentionally thin.** `vite.config.ts` wraps `@lovable.dev/vite-tanstack-config`, which already registers tanstackStart, viteReact, tailwindcss, tsConfigPaths, nitro, devtools, the `@` alias, and React/TanStack dedupe. Adding any of those manually breaks the app with duplicate plugins.
+**Vite config is explicit.** `vite.config.ts` registers the plugin stack directly — tailwindcss, tsConfigPaths, tanstackStart, nitro, viteReact, in that order. Two things there are load-bearing and easy to break:
+
+- `css.transformer: "lightningcss"` is set so dev matches build. Vite otherwise runs PostCSS in dev and Lightning CSS only at build, which lets a CSS feature look right in the preview and break in production. Lightning CSS also does vendor prefixing, so **never hand-write `-webkit-` properties** — it rewrites hand-written copies into a form the target browser may ignore. (Verified: the built CSS contains auto-generated `-webkit-backdrop-filter` and `-webkit-mask-image`.)
+- `nitro()` takes **no preset**, so it detects the target from the environment: a Vercel build on Vercel (`.vercel/output`, Build Output API v3), a Node server locally. Hardcoding a preset here is what previously made local builds emit Cloudflare `wrangler.json` output.
 
 **Three entry points, layered for error handling:**
 - `src/router.tsx` — `getRouter()` builds the router and injects a `QueryClient` into route context.
 - `src/start.ts` — `createStart` with a request middleware that catches non-HTTP throws and returns a rendered error page.
 - `src/server.ts` — the SSR entry (wired via `tanstackStart.server.entry` in vite config). It wraps `@tanstack/react-start/server-entry` and normalizes h3's swallowed 500s: h3 turns in-handler throws into a JSON `{"unhandled":true,"message":"HTTPError"}` response that no try/catch sees, so `src/lib/error-capture.ts` records the original error out-of-band (5s TTL) for `server.ts` to recover and log.
 
-Client-side boundary errors flow to Lovable via `src/lib/lovable-error-reporting.ts` (`window.__lovableEvents`), called from the root `errorComponent`.
+Client-side boundary errors are logged to the console from the root `errorComponent`. There is no error-reporting service wired up — add one there if you want production visibility.
 
 **Routing** is file-based under `src/routes/`. See `src/routes/README.md` for the conventions table — notably: no `src/pages/`, no `app/layout.tsx`, the only layout is `__root.tsx`, and `routeTree.gen.ts` is generated (never hand-edit; it's also prettier-ignored).
 
@@ -76,9 +79,13 @@ shadcn/ui (new-york style, slate base, lucide icons) is configured in `component
 
 Animation is `motion` (v12, imported as `motion/react`): `useScroll`/`useTransform` for hero parallax, and the local `Reveal` wrapper for scroll-triggered entrances.
 
-## Lovable sync
+## Deployment
 
-This project is connected to Lovable (`.lovable/project.json`, `AGENTS.md`). Never force-push, rebase, amend, or squash already-pushed commits — that rewrites history on Lovable's side and the user loses project history. Commits to the connected branch sync back into the Lovable editor, so keep the branch working.
+Vercel builds from `github.com/iOSdevManoj/portfolio-site` on `main` — pushing to `main` deploys to production. There is no Vercel CLI or `.vercel` project link in this repo; the GitHub integration is the whole pipeline.
+
+To check the Vercel build locally before pushing, run `VERCEL=1 npm run build` and confirm `.vercel/output/{config.json,static,functions}` appears.
+
+**Lovable has been fully removed** (`.lovable/`, `AGENTS.md`, the error-reporting telemetry, and `@lovable.dev/vite-tanstack-config`). Do not reintroduce it. `lightningcss` is now a direct devDependency because it used to arrive transitively through that package.
 
 ## Outstanding placeholders
 
