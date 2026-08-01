@@ -1,12 +1,39 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import {
-  ArrowRight, Download, MessageCircle, Calendar, Github, Linkedin, Mail,
-  Phone, MapPin, ChevronRight, Sparkles, Shield, Zap, Cpu, Heart,
-  Smartphone, Bluetooth, Cloud, Brain, Code2, Rocket, Award,
-  CheckCircle2, Star, ExternalLink, Layers, Database, GitBranch,
-  Users, Building2, Activity, Watch, Stethoscope, ChevronDown,
+  ArrowRight,
+  Download,
+  MessageCircle,
+  Github,
+  Linkedin,
+  Mail,
+  MapPin,
+  ChevronRight,
+  Shield,
+  Zap,
+  Cpu,
+  Heart,
+  Smartphone,
+  Bluetooth,
+  Cloud,
+  Brain,
+  Rocket,
+  CheckCircle2,
+  ExternalLink,
+  Layers,
+  Users,
+  Building2,
+  Activity,
+  Watch,
+  Stethoscope,
+  ChevronDown,
+  Clock,
+  FileCheck,
+  UserCheck,
+  Menu,
+  X,
+  Globe,
 } from "lucide-react";
 import portrait from "@/assets/manoj.jpg";
 
@@ -18,700 +45,1610 @@ export const Route = createFileRoute("/")({
   }),
 });
 
+// ============================================================================
+// CONFIG — edit these five blocks and the whole page updates.
+// Empty strings hide the corresponding link/button instead of rendering a dead
+// `#` anchor, so it is safe to leave something blank until you have the URL.
+// ============================================================================
+
+const CONTACT = {
+  email: "manojbarad@gmail.com",
+  whatsapp: "919426675556", // digits only, no "+" — wa.me rejects the plus sign
+  whatsappDisplay: "+91 94266 75556",
+  calendar: "", // Calendly / Cal.com booking URL
+  resume: "", // public PDF URL, e.g. "/manoj-barad-cv.pdf" in /public
+  linkedin: "", // TODO: add once the profile URL is confirmed
+  github: "https://github.com/iOSdevManoj",
+  upwork: "https://www.upwork.com/freelancers/~011df072813255b527?viewMode=1",
+  location: "Ahmedabad, India",
+  timezone: "IST · UTC+5:30",
+};
+
+/** Shown in the hero status pill. Update this — a stale date reads worse than none. */
+const AVAILABILITY = "Taking on new projects from September 2026";
+
+const MAILTO = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
+  "Project enquiry — mobile build",
+)}&body=${encodeURIComponent(
+  [
+    "Hi Manoj,",
+    "",
+    "What we're building:",
+    "Platforms (iOS / Android / both):",
+    "Rough timeline:",
+    "Budget range:",
+    "",
+    "Thanks,",
+  ].join("\n"),
+)}`;
+
+/** wa.me needs the number in international format with no "+", spaces or dashes. */
+const WHATSAPP = CONTACT.whatsapp
+  ? `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(
+      "Hi Manoj — I found your portfolio. I'd like to discuss a mobile project.",
+    )}`
+  : "";
+
 // ---------- data ----------
+
+/** Keep these defensible — a client who asks you to back up a number should get an answer. */
 const STATS = [
-  { value: "12+", label: "Years Experience" },
-  { value: "150+", label: "Projects Delivered" },
-  { value: "40+", label: "Enterprise Clients" },
-  { value: "25+", label: "Apps on App Store" },
+  { value: "12+", label: "Years in production iOS" },
+  { value: "150+", label: "Projects delivered" },
+  { value: "25+", label: "Apps live on the App Store" },
+  { value: "24h", label: "Reply to every enquiry" },
+];
+
+/** The four promises that separate an independent senior engineer from an agency. */
+const TRUST = [
+  {
+    icon: UserCheck,
+    title: "You work with me directly",
+    desc: "No account manager, no shared team, no junior developer taking over halfway.",
+  },
+  {
+    icon: Globe,
+    title: "Overlap with your hours",
+    desc: "Daily overlap with US, UK, EU and MENA teams. Async-first by default.",
+  },
+  {
+    icon: FileCheck,
+    title: "NDA and IP, sorted upfront",
+    desc: "NDA before scoping. Full IP transfer on delivery. Private repos throughout.",
+  },
+  {
+    icon: Clock,
+    title: "Scope quoted before work starts",
+    desc: "You approve a written scope and milestones. No open-ended hourly drift.",
+  },
 ];
 
 const EXPERTISE = [
-  { icon: Smartphone, title: "Native iOS", desc: "Swift, SwiftUI, UIKit, Combine, async/await, TCA & MVVM at scale." },
-  { icon: Layers, title: "Flutter & Cross-Platform", desc: "Production Flutter apps, Riverpod/Bloc, platform channels, native bridges." },
-  { icon: Brain, title: "AI Integration", desc: "OpenAI, Claude, Gemini, RAG, embeddings, on-device Core ML." },
-  { icon: Heart, title: "Healthcare & Medical", desc: "HealthKit, HIPAA-friendly architecture, telemedicine, medical dashboards." },
-  { icon: Bluetooth, title: "BLE & IoT", desc: "Wearables, sensors, firmware OTA, background sync, low-power protocols." },
-  { icon: Cloud, title: "Cloud & Backend", desc: "Firebase, AWS, Azure, Node.js, Laravel, REST, GraphQL, Sockets." },
-  { icon: Shield, title: "Security & Compliance", desc: "Encryption, keychain, biometrics, secure storage, audit-ready code." },
-  { icon: Rocket, title: "Architecture & Scale", desc: "Clean architecture, modular design, CI/CD, App Store & Play Store release." },
+  {
+    icon: Smartphone,
+    title: "Native iOS",
+    desc: "Swift, SwiftUI, UIKit, Combine, structured concurrency. MVVM and clean architecture on codebases meant to live for years.",
+  },
+  {
+    icon: Bluetooth,
+    title: "BLE & connected hardware",
+    desc: "CoreBluetooth pairing, background sync, firmware OTA, reconnection logic and the state machines that make it survive real-world use.",
+  },
+  {
+    icon: Heart,
+    title: "Healthcare & medical",
+    desc: "HealthKit, HIPAA-conscious data flow, telemedicine, patient dashboards, and companion apps for regulated devices.",
+  },
+  {
+    icon: Brain,
+    title: "AI features that behave",
+    desc: "OpenAI, Claude and Gemini in production: RAG, embeddings, streaming, fallbacks, cost control and on-device Core ML.",
+  },
+  {
+    icon: Layers,
+    title: "Flutter & cross-platform",
+    desc: "Production Flutter with Riverpod/Bloc, plus platform channels and native bridges when Dart alone can't reach the hardware.",
+  },
+  {
+    icon: Cloud,
+    title: "Backend the app needs",
+    desc: "Firebase, AWS, Node.js, REST/GraphQL, WebSockets — enough backend to unblock the mobile product, built to hand over.",
+  },
+  {
+    icon: Shield,
+    title: "Security & compliance",
+    desc: "Keychain, biometrics, certificate pinning, encrypted local stores, and a commit history that survives an audit.",
+  },
+  {
+    icon: Rocket,
+    title: "Release & App Store",
+    desc: "CI/CD, TestFlight, phased rollout, and handling review rejections — including the ones about BLE background modes and health data.",
+  },
 ];
 
 const INDUSTRIES = [
-  { icon: Stethoscope, name: "Healthcare & Medical" },
-  { icon: Watch, name: "Fitness & Wearables" },
-  { icon: Activity, name: "IoT & Smart Devices" },
+  { icon: Stethoscope, name: "Healthcare & MedTech" },
+  { icon: Watch, name: "Wearables & fitness" },
+  { icon: Activity, name: "IoT & smart devices" },
   { icon: Building2, name: "Enterprise & SaaS" },
-  { icon: Brain, name: "AI Products" },
-  { icon: Users, name: "Social & Marketplace" },
+  { icon: Brain, name: "AI products" },
+  { icon: Users, name: "Marketplaces & social" },
 ];
 
+/**
+ * Every entry is a delivered, shipped project. `outcome` is the line a client
+ * actually reads — fill each with a real, specific result (a number, a launch,
+ * a review passed). Leave it empty rather than invent one; the bubble renders
+ * fine without it. `duration` is optional and hidden when blank.
+ */
 const PROJECTS = [
-  { name: "iPass", role: "iOS Developer", duration: "In Progress", team: "2", tools: "Xcode + BLE", tag: "Access Control · BLE", desc: "Seamless, secure Bluetooth-based access control using ECC key authentication between smartphone and iPass BLE device.", tech: ["SwiftUI", "BLE", "ECC Key Authentication"], color: "from-teal-500/20 to-indigo-500/20" },
-  { name: "CokePay", role: "Sr. iOS Developer", duration: "In Progress", team: "2", tools: "Xcode", tag: "Payments · IoT", desc: "App connecting CokePay vending machines via encrypted BLE communication, with wallet top-up and in-app product purchasing.", tech: ["SwiftUI", "BLE", "Lottie", "Wallet Payment"], color: "from-rose-500/20 to-amber-500/20" },
-  { name: "CamCrasher", role: "iOS Developer", duration: "In Progress", team: "1", tools: "Xcode", tag: "Automotive · Safety", desc: "Driver-safety app providing light-based alerts for upcoming speed cameras using accurate TomTom® data without distracting notifications.", tech: ["Swift", "BLE", "MVVM", "TomTom Data"], color: "from-amber-500/20 to-teal-500/20" },
-  { name: "STIMLEVE", role: "iOS Developer", duration: "1 year", team: "2", tools: "Xcode", tag: "Healthcare · BLE", desc: "Revolutionary rehab programme synchronising electrical muscle stimulation with mobility exercises to alleviate pain and enhance body biomechanics.", tech: ["SwiftUI", "BLE", "Lottie Animation"], color: "from-rose-500/20 to-teal-500/20" },
-  { name: "Moovii", role: "Flutter Developer", duration: "Cross-platform", team: "2", tools: "Xcode / Android Studio", tag: "Entertainment · Cross-platform", desc: "Personalised movie & TV show recommendation app using intelligent matching algorithms that improve with usage. Available on the App Store.", tech: ["Flutter", "REST API", "Firebase", "Recommendation", "Social Auth"], color: "from-indigo-500/20 to-teal-500/20" },
-  { name: "HummBugs", role: "Sr. React Native Developer", duration: "2 months", team: "2", tools: "Xcode / RN CLI", tag: "IoT · Cross-platform", desc: "Cross-platform React Native application with BLE integration for connecting and controlling smart hardware devices, featuring smooth Lottie animations.", tech: ["React Native", "BLE", "Lottie", "iOS", "Android"], color: "from-amber-500/20 to-rose-500/20" },
-  { name: "Handson (BLE Tool Tracker)", role: "Sr. React Native Developer", duration: "2 months", team: "2", tools: "Xcode / RN CLI", tag: "Enterprise · BLE", desc: "Cross-platform tool-tracking app using BLE-enabled trackers to monitor tool locations in real time, with map clustering and location features.", tech: ["React Native", "BLE", "Location", "Spiderfier", "MVVM"], color: "from-emerald-500/20 to-teal-500/20" },
-  { name: "GoBe!", role: "iOS Developer", duration: "2.5 months", team: "1", tools: "Xcode", tag: "Social · Media", desc: "Location-memory app to capture and remember interesting places, buildings, street art and views with rich media editing and social sharing.", tech: ["Swift", "MVVM", "Image Edit", "Video", "Social Share", "Social Auth"], color: "from-teal-500/20 to-amber-500/20" },
-  { name: "Park & Recharge", role: "iOS Developer", duration: "1.5 months", team: "1", tools: "Xcode", tag: "EV · Payments", desc: "EV charge-point companion app providing network access, usage history, and payment integration for electric vehicle drivers.", tech: ["Swift", "Line Chart", "REST API", "Core Data", "Payments"], color: "from-emerald-500/20 to-indigo-500/20" },
-  // Additional selected work from earlier engagements
-  { name: "HealthKit Companion", role: "Sr. iOS Developer", duration: "4 months", team: "3", tools: "Xcode", tag: "Healthcare · Wearables", desc: "HIPAA-conscious iOS app aggregating HealthKit, Apple Watch and third-party wearable data into a unified patient dashboard for remote care teams.", tech: ["SwiftUI", "HealthKit", "WatchKit", "Combine", "CloudKit"], color: "from-teal-500/20 to-rose-500/20" },
-  { name: "AI Voice Coach", role: "Mobile & AI Engineer", duration: "3 months", team: "2", tools: "Xcode / Flutter", tag: "AI · Wellness", desc: "Real-time voice coaching app using OpenAI Realtime API with on-device transcription, custom prompts and streaming responses for daily habit building.", tech: ["Flutter", "OpenAI", "WebRTC", "Realtime API", "RAG"], color: "from-indigo-500/20 to-amber-500/20" },
-  { name: "FitPulse Wearable", role: "iOS Developer", duration: "6 months", team: "4", tools: "Xcode", tag: "Fitness · BLE", desc: "Companion iOS app for a proprietary fitness wearable — BLE pairing, firmware OTA updates, workout sync and Strava/Apple Health integration.", tech: ["Swift", "CoreBluetooth", "HealthKit", "OTA", "Strava API"], color: "from-amber-500/20 to-emerald-500/20" },
-  { name: "SmartHome Hub", role: "Flutter Developer", duration: "5 months", team: "3", tools: "Android Studio / Xcode", tag: "IoT · Smart Home", desc: "Cross-platform hub controlling BLE + Wi-Fi smart devices with scenes, automations and voice control through Siri Shortcuts and Google Assistant.", tech: ["Flutter", "BLE", "MQTT", "Firebase", "Siri Shortcuts"], color: "from-teal-500/20 to-indigo-500/20" },
-  { name: "MedRemind Pro", role: "iOS Developer", duration: "3 months", team: "2", tools: "Xcode", tag: "Healthcare · Reminders", desc: "Medication adherence app with smart scheduling, caregiver alerts, HealthKit logging and offline-first sync for elderly patients.", tech: ["SwiftUI", "Core Data", "HealthKit", "Local Notifications"], color: "from-rose-500/20 to-teal-500/20" },
+  {
+    name: "iPass",
+    role: "iOS Developer",
+    duration: "",
+    tag: "Access control · BLE",
+    featured: true,
+    desc: "Bluetooth access-control app authenticating phone-to-reader over ECC key exchange, with offline credential caching so doors keep opening when the network doesn't.",
+    outcome: "",
+    tech: ["SwiftUI", "CoreBluetooth", "ECC auth"],
+  },
+  {
+    name: "CokePay",
+    role: "Sr. iOS Developer",
+    duration: "",
+    tag: "Payments · IoT",
+    featured: true,
+    desc: "Vending-machine companion app over encrypted BLE — in-app wallet top-up, product selection, and a dispense handshake that reconciles correctly when the connection drops mid-transaction.",
+    outcome: "",
+    tech: ["SwiftUI", "CoreBluetooth", "Wallet payments", "Lottie"],
+  },
+  {
+    name: "STIMLEVE",
+    role: "iOS Developer",
+    duration: "1 year",
+    tag: "Healthcare · BLE",
+    featured: true,
+    desc: "Rehabilitation platform synchronising electrical muscle stimulation with guided mobility exercises — real-time device control driven by session protocols clinicians define and patients follow unsupervised.",
+    outcome: "",
+    tech: ["SwiftUI", "CoreBluetooth", "Session protocols"],
+  },
+  {
+    name: "CamCrasher",
+    role: "iOS Developer",
+    duration: "",
+    tag: "Automotive · Safety",
+    featured: true,
+    desc: "Driver-safety app that signals upcoming speed cameras with peripheral light cues instead of notifications, so the warning never pulls a driver's eyes off the road. Built on TomTom® data.",
+    outcome: "",
+    tech: ["Swift", "MVVM", "CoreLocation", "TomTom"],
+  },
+  {
+    name: "Moovii",
+    role: "Flutter Developer",
+    duration: "",
+    tag: "Entertainment · Flutter",
+    featured: true,
+    desc: "Film and TV recommendation app whose matching sharpens as it learns a viewer's taste. One Flutter codebase, shipped to both stores.",
+    outcome: "Live on the App Store",
+    tech: ["Flutter", "Firebase", "REST", "Social auth"],
+  },
+  {
+    name: "Handson",
+    role: "Sr. React Native Developer",
+    duration: "2 months",
+    tag: "Enterprise · BLE",
+    featured: true,
+    desc: "Tool-tracking app for job sites: BLE tags report location in real time, with map clustering and spiderfied pins that stay readable when twenty tools sit in the same van.",
+    outcome: "",
+    tech: ["React Native", "BLE", "Map clustering"],
+  },
+  {
+    name: "HummBugs",
+    role: "Sr. React Native Developer",
+    duration: "2 months",
+    tag: "IoT · Cross-platform",
+    featured: false,
+    desc: "Cross-platform controller for BLE smart hardware, with animated device states driven directly by live characteristic updates.",
+    outcome: "",
+    tech: ["React Native", "BLE", "Lottie"],
+  },
+  {
+    name: "GoBe!",
+    role: "iOS Developer",
+    duration: "2.5 months",
+    tag: "Social · Media",
+    featured: false,
+    desc: "Location-memory app for capturing places, architecture and street art, with in-app media editing and social sharing.",
+    outcome: "",
+    tech: ["Swift", "MVVM", "Media editing", "Social auth"],
+  },
+  {
+    name: "Park & Recharge",
+    role: "iOS Developer",
+    duration: "1.5 months",
+    tag: "EV · Payments",
+    featured: false,
+    desc: "EV charge-point companion: network access, session history charts and in-app payment for drivers mid-journey.",
+    outcome: "",
+    tech: ["Swift", "Core Data", "Charts", "Payments"],
+  },
 ];
-
 
 const TIMELINE = [
-  { year: "2024 — Present", role: "Senior Mobile Architect", org: "Iottive Pvt Ltd", detail: "Leading iOS, Flutter & AI initiatives for healthcare and enterprise clients across US, EU and MENA." },
-  { year: "2020 — 2024", role: "Lead iOS Engineer", org: "Product Studios & Direct Clients", detail: "Shipped 40+ production apps — fintech, healthcare, IoT — with dedicated squads on Upwork Enterprise." },
-  { year: "2016 — 2020", role: "Senior iOS Developer", org: "Multiple Product Companies", detail: "Built and scaled consumer & B2B apps across sports, media, e-commerce and travel." },
-  { year: "2013 — 2016", role: "iOS Developer", org: "Software Consultancies", detail: "Objective-C → Swift transition, native SDKs, App Store launches, agency delivery." },
+  {
+    year: "2024 — Present",
+    role: "Independent Senior Mobile Engineer",
+    org: "Direct clients, worldwide",
+    detail:
+      "Contracted directly by product teams in the US, EU and MENA for iOS, Flutter and BLE work — usually as the senior mobile engineer on a small in-house team.",
+  },
+  {
+    year: "2020 — 2024",
+    role: "Lead iOS Engineer",
+    org: "Product companies & long-term contracts",
+    detail:
+      "Owned mobile architecture across healthcare, fintech and IoT products: greenfield builds, legacy rescues and App Store releases.",
+  },
+  {
+    year: "2016 — 2020",
+    role: "Senior iOS Developer",
+    org: "Product companies",
+    detail:
+      "Built and scaled consumer and B2B apps across sports, media, e-commerce and travel. Moved teams from MVC to testable, modular architecture.",
+  },
+  {
+    year: "2013 — 2016",
+    role: "iOS Developer",
+    org: "Software consultancies",
+    detail:
+      "Objective-C through the Swift transition. Native SDK work, first App Store launches, and the habit of shipping to a deadline.",
+  },
 ];
 
 const TECH = [
-  "Swift", "SwiftUI", "UIKit", "Objective-C", "Combine", "Flutter", "Dart",
-  "React Native", "Firebase", "Node.js", "Laravel", "Python", "PostgreSQL",
-  "MongoDB", "AWS", "Azure", "GCP", "Docker", "GitHub Actions",
-  "OpenAI", "Claude", "Gemini", "Core ML", "HealthKit", "CoreBluetooth",
-  "Stripe", "GraphQL", "REST", "WebSockets", "Figma",
+  "Swift",
+  "SwiftUI",
+  "UIKit",
+  "Objective-C",
+  "Combine",
+  "Swift Concurrency",
+  "CoreBluetooth",
+  "HealthKit",
+  "Core ML",
+  "Core Data",
+  "Flutter",
+  "Dart",
+  "React Native",
+  "TypeScript",
+  "Node.js",
+  "Firebase",
+  "AWS",
+  "PostgreSQL",
+  "GraphQL",
+  "WebSockets",
+  "OpenAI",
+  "Claude",
+  "Docker",
+  "GitHub Actions",
+  "Fastlane",
+  "XCTest",
+  "Figma",
 ];
 
-const SERVICES = [
-  { icon: Smartphone, title: "Native iOS Development", desc: "Swift & SwiftUI apps built to Apple's highest quality bar." },
-  { icon: Layers, title: "Flutter Development", desc: "One codebase, iOS + Android, pixel-perfect on both." },
-  { icon: Brain, title: "AI Integration", desc: "Chatbots, RAG, embeddings, voice AI, OpenAI/Claude/Gemini." },
-  { icon: Heart, title: "Healthcare Apps", desc: "HIPAA-conscious architecture, HealthKit, medical dashboards." },
-  { icon: Bluetooth, title: "BLE & IoT", desc: "Wearables, sensors, firmware OTA, background sync." },
-  { icon: Cloud, title: "Backend & Cloud", desc: "Firebase, AWS, Node.js APIs, real-time infrastructure." },
-  { icon: Zap, title: "Performance Optimization", desc: "Cold-start, memory, battery, network — measurable wins." },
-  { icon: Cpu, title: "Architecture Consulting", desc: "Clean, modular, testable systems that scale for years." },
+/** Three ways to buy. Clients self-select, which makes the first email far better. */
+const ENGAGEMENTS = [
+  {
+    icon: Rocket,
+    name: "Fixed-scope build",
+    best: "Best for: MVPs and defined feature sets",
+    desc: "We agree the scope, architecture and milestones in writing before a line of code. You get a working, releasable app at each milestone.",
+    points: [
+      "Written scope and fixed milestones",
+      "Architecture documented up front",
+      "App Store or Play release included",
+      "30 days of post-launch fixes",
+    ],
+    highlight: false,
+  },
+  {
+    icon: Zap,
+    name: "Monthly retainer",
+    best: "Best for: teams shipping continuously",
+    desc: "Reserved capacity every month. Weekly demos, direct access on your Slack, and a roadmap we adjust together as the product moves.",
+    points: [
+      "Reserved days per month",
+      "Weekly demo, not a status deck",
+      "Direct Slack / Teams access",
+      "Roadmap and architecture input",
+    ],
+    highlight: true,
+  },
+  {
+    icon: Cpu,
+    name: "Architecture review",
+    best: "Best for: an app that has stopped scaling",
+    desc: "A short, fixed engagement on an existing codebase. You get a written assessment and a prioritised plan you can execute with or without me.",
+    points: [
+      "Codebase and architecture audit",
+      "Crash, performance and battery review",
+      "Written, prioritised remediation plan",
+      "Fixed price, fixed duration",
+    ],
+    highlight: false,
+  },
 ];
 
 const PROCESS = [
-  { step: "01", title: "Discovery", desc: "Deep-dive into your product, users, constraints and business goals." },
-  { step: "02", title: "Architecture", desc: "System design, tech choices, milestones, risk & compliance plan." },
-  { step: "03", title: "Design & Build", desc: "Sprint-based delivery with weekly demos, clean code, full test coverage." },
-  { step: "04", title: "Ship & Scale", desc: "App Store / Play release, monitoring, iteration, long-term partnership." },
+  {
+    step: "01",
+    title: "Call & scope",
+    desc: "A 30-minute call on the product, users and constraints. You leave with a written scope, a timeline and a price — free, no obligation.",
+  },
+  {
+    step: "02",
+    title: "Architecture",
+    desc: "System design, tech choices, third-party and compliance risks flagged early, and the milestone plan we'll hold ourselves to.",
+  },
+  {
+    step: "03",
+    title: "Build & demo",
+    desc: "Weekly builds you can install and use. Clean, reviewed, documented code in your repo from day one — never a big-bang handover.",
+  },
+  {
+    step: "04",
+    title: "Ship & support",
+    desc: "Store submission, review responses, phased rollout and monitoring. Then 30 days of fixes, or an ongoing retainer if you want me to stay.",
+  },
 ];
 
-const TESTIMONIALS = [
-  { quote: "Manoj is one of the sharpest mobile architects we've worked with. He shipped our healthcare iOS app ahead of schedule and it just works.", author: "CTO, US Health-Tech Startup" },
-  { quote: "Rare combination of deep technical skill and clear communication. He rebuilt our BLE stack and cut battery drain by 60%.", author: "VP Engineering, IoT Wearable Co." },
-  { quote: "He treated our product like it was his own. Enterprise-grade code, on-time delivery, no hand-holding required.", author: "Founder, Fintech Platform" },
+const WHY = [
+  "You speak directly with the engineer writing your code, every day",
+  "Architecture you can read, audit and hand to your next hire",
+  "Bluetooth and connected-hardware experience most mobile developers do not have",
+  "Patient data handled to HIPAA-conscious standards, not guesswork",
+  "AI features built with fallbacks and cost controls, not just a demonstration",
+  "App Store submissions handled end to end, rejections included",
+  "A working build you can install every week, so progress is never a guess",
+  "Fixed, written scope before the work starts",
+  "Support after launch, not a disappearing act",
 ];
+
+/**
+ * Real client feedback only. Paste verbatim quotes from your Upwork reviews or
+ * signed-off references, with a name or a role the client agreed to. If this
+ * array is empty the section does not render — an empty testimonials block is
+ * far better than an invented one, and buyers in this market can tell.
+ *
+ * Shape: { quote: string; author: string; role: string; source?: string }
+ */
+const TESTIMONIALS: { quote: string; author: string; role: string; source?: string }[] = [];
 
 const FAQ = [
-  { q: "What kind of projects do you take on?", a: "End-to-end mobile products (iOS + Flutter), AI integrations, healthcare & wearable apps, BLE/IoT systems, and architecture rescue missions for existing apps." },
-  { q: "Do you work solo or with a team?", a: "Both. I deliver solo for focused scopes, and lead squads of designers, backend and QA engineers for larger builds." },
-  { q: "What time zones do you cover?", a: "I overlap with US, EU, UK and MENA business hours. Async-first, with reliable daily check-ins." },
-  { q: "How do you handle NDAs and IP?", a: "Standard practice. NDA before scoping, full IP transfer on delivery, private repos, and audit-ready commit history." },
-  { q: "What's your typical engagement model?", a: "Fixed-scope milestones for MVPs, or dedicated monthly retainers for ongoing product work. Both include architecture, code and release management." },
+  {
+    q: "Do you work alone or with a team?",
+    a: "Alone, by design. You hire me and I write the code. For larger builds I'll work alongside your existing designers, backend and QA people rather than bringing in subcontractors — so you always know exactly who is on your project.",
+  },
+  {
+    q: "What does a project typically cost?",
+    a: "Fixed-scope builds are quoted after a free scoping call, based on the milestone plan we agree. Retainers are priced per reserved day and billed monthly. Architecture reviews are a flat fee. You'll always have the number in writing before anything starts.",
+  },
+  {
+    q: "What time zones do you cover?",
+    a: "I'm in IST (UTC+5:30) and keep daily overlap with US, UK, EU and MENA business hours. Work is async-first with a written daily update, plus a live call whenever it's faster than typing.",
+  },
+  {
+    q: "How do you handle NDAs, IP and confidentiality?",
+    a: "NDA signed before scoping if you want one. Work happens in your private repo under your account, full IP transfers to you on delivery, and the commit history is clean enough to hand to an auditor or a due-diligence team.",
+  },
+  {
+    q: "Can you take over an existing codebase?",
+    a: "Often, yes — it's a large part of what I do. It usually starts with an architecture review so you get an honest read on what's salvageable before committing to a rebuild.",
+  },
+  {
+    q: "Do you work with Indian companies as well as overseas clients?",
+    a: "Yes, both. I work with startups and enterprises across the US, UK, Europe and the Middle East, and with companies in India. Indian clients can be invoiced in INR and meet in person in Ahmedabad if that is useful; overseas clients are invoiced in USD, EUR or GBP through Upwork or by direct bank transfer.",
+  },
+  {
+    q: "How will we communicate during the project?",
+    a: "In English, in writing, every working day. You get a short daily update on what was completed and what is next, a working build you can install each week, and a call whenever it is faster than typing. I keep a daily overlap with your business hours, so you are never waiting a full day for an answer.",
+  },
+  {
+    q: "How do we start?",
+    a: "Send a short brief through the form of your choice below. You'll get a reply within 24 hours, and if it's a fit, a scoping call and a written proposal within a few days.",
+  },
 ];
 
-// ---------- small components ----------
-function Section({ id, children, className = "" }: { id?: string; children: React.ReactNode; className?: string }) {
+// ---------- primitives ----------
+
+function Section({
+  id,
+  children,
+  className = "",
+}: {
+  id?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <section id={id} className={`relative mx-auto w-full max-w-7xl px-6 py-24 sm:py-32 ${className}`}>
+    <section
+      id={id}
+      className={`relative mx-auto w-full max-w-7xl px-6 py-20 sm:py-28 ${className}`}
+    >
       {children}
     </section>
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionHeading({
+  label,
+  title,
+  accent,
+  sub,
+  align = "center",
+}: {
+  label: string;
+  title: string;
+  accent?: string;
+  sub?: string;
+  align?: "center" | "left";
+}) {
   return (
-    <div className="mb-4 inline-flex items-center gap-2 rounded-full glass px-3 py-1 text-xs font-medium uppercase tracking-widest text-teal">
-      <Sparkles className="h-3 w-3" /> {children}
+    <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
+      <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-hairline bg-surface px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-teal">
+        {label}
+      </div>
+      <h2 className="font-display text-3xl font-bold sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
+        {title} {accent && <span className="text-gradient">{accent}</span>}
+      </h2>
+      {sub && <p className="mt-4 text-base leading-relaxed text-muted-foreground">{sub}</p>}
     </div>
   );
 }
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const reduce = useReducedMotion();
+  if (reduce) return <>{children}</>;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
   );
 }
 
+/** Counts up on first scroll into view. Suffix/prefix characters are preserved. */
 function Counter({ value }: { value: string }) {
   const num = parseInt(value.replace(/\D/g, ""), 10);
   const suffix = value.replace(/[0-9]/g, "");
+  const reduce = useReducedMotion();
   const [display, setDisplay] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
+
   useEffect(() => {
+    if (reduce) {
+      setDisplay(num);
+      return;
+    }
     let started = false;
-    const io = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !started) {
+    let frame = 0;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || started) return;
         started = true;
-        const dur = 1400; const start = performance.now();
+        const dur = 1200;
+        const start = performance.now();
         const tick = (t: number) => {
           const p = Math.min(1, (t - start) / dur);
           setDisplay(Math.round(num * (1 - Math.pow(1 - p, 3))));
-          if (p < 1) requestAnimationFrame(tick);
+          if (p < 1) frame = requestAnimationFrame(tick);
         };
-        requestAnimationFrame(tick);
-      }
-    }, { threshold: 0.4 });
+        frame = requestAnimationFrame(tick);
+      },
+      { threshold: 0.4 },
+    );
     if (ref.current) io.observe(ref.current);
-    return () => io.disconnect();
-  }, [num]);
-  return <span ref={ref}>{display}{suffix}</span>;
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [num, reduce]);
+
+  return (
+    <span ref={ref}>
+      {display}
+      {suffix}
+    </span>
+  );
 }
+
+/** Decorative bubbles drifting up behind the cluster. Fixed, not random, so
+ *  server and client markup match during hydration. */
+const RISING_BUBBLES = [
+  { left: "8%", size: 14, duration: "24s", delay: "0s" },
+  { left: "21%", size: 8, duration: "19s", delay: "3.5s" },
+  { left: "37%", size: 18, duration: "28s", delay: "7s" },
+  { left: "52%", size: 10, duration: "21s", delay: "1.5s" },
+  { left: "68%", size: 15, duration: "26s", delay: "9s" },
+  { left: "81%", size: 7, duration: "18s", delay: "5s" },
+  { left: "93%", size: 12, duration: "23s", delay: "12s" },
+];
+
+/**
+ * Water hues per bubble, cycled by index. Deliberately confined to the cool
+ * aqua band (seafoam → teal → cyan → sky → blue) so the cluster varies like
+ * real water instead of turning into a multicoloured chart.
+ */
+const BUBBLE_HUES = [196, 172, 224, 205, 162, 240, 188, 214, 178];
+
+/**
+ * Wander paths. Each bubble traces its own closed loop, and neighbouring
+ * entries push in opposing directions so pairs visibly close on each other and
+ * drift apart again. Amplitudes stay under ~30px: the resting gutter between
+ * adjacent circles is ~69px at desktop, so two bubbles converging can reach
+ * roughly 13px apart — near-touching, never colliding through each other.
+ */
+const WANDER = [
+  { x: [0, 26, 8, -14, 0], y: [0, -16, -28, -10, 0] },
+  { x: [0, -22, -6, 18, 0], y: [0, -12, -24, -6, 0] },
+  { x: [0, 14, 28, 10, 0], y: [0, -20, -8, -22, 0] },
+  { x: [0, -18, -28, -8, 0], y: [0, -22, -10, -18, 0] },
+  { x: [0, 20, -10, -22, 0], y: [0, -10, -26, -14, 0] },
+  { x: [0, -14, 16, 24, 0], y: [0, -24, -14, -8, 0] },
+  { x: [0, 24, -8, -16, 0], y: [0, -14, -22, -26, 0] },
+  { x: [0, -26, 10, 14, 0], y: [0, -18, -26, -12, 0] },
+  { x: [0, 16, 26, -12, 0], y: [0, -26, -12, -20, 0] },
+];
+
+type Project = (typeof PROJECTS)[number];
+
+/**
+ * Project rendered as a true water bubble — a circle, not a card.
+ *
+ * Everything lives inside the sphere: tag, name, role, description and tech.
+ * Text is inset by ~15% so it never collides with the curve, and the
+ * description is clamped at rest and released on hover/focus as the bubble
+ * swells. Three independent motions run at once and are deliberately
+ * desynchronised per index so the cluster drifts like bubbles suspended in
+ * water rather than pulsing in unison:
+ *   1. `bubble-wobble` (CSS)  — surface tension on the outline
+ *   2. drift (motion)         — slow vertical + lateral travel
+ *   3. hover swell (motion)   — scale + brighten
+ * All three are dropped under prefers-reduced-motion.
+ */
+function ProjectBubble({
+  project: p,
+  index,
+  reduce,
+}: {
+  project: Project;
+  index: number;
+  reduce: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const hue = BUBBLE_HUES[index % BUBBLE_HUES.length];
+  const wander = WANDER[index % WANDER.length];
+  // Long, prime-ish periods so loops don't resynchronise into a visible pulse.
+  const wanderDuration = 17 + (index % 5) * 3.4;
+  const wanderDelay = (index % 6) * 1.3;
+
+  const visibleTech = open ? p.tech : p.tech.slice(0, 3);
+  const hiddenTech = p.tech.length - visibleTech.length;
+
+  return (
+    <motion.div
+      initial={reduce ? false : { opacity: 0, scale: 0.7 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{
+        duration: 0.7,
+        delay: (index % 3) * 0.1,
+        ease: [0.22, 1.2, 0.36, 1], // slight overshoot — bubbles "pop" into place
+      }}
+      className={`relative mx-auto w-full max-w-[21rem] ${open ? "z-20" : "z-0"}`}
+    >
+      <motion.div
+        animate={reduce ? undefined : { x: wander.x, y: wander.y }}
+        transition={{
+          duration: wanderDuration,
+          delay: wanderDelay,
+          repeat: Infinity,
+          repeatType: "mirror",
+          ease: "easeInOut",
+          times: [0, 0.25, 0.5, 0.75, 1],
+        }}
+        style={{ willChange: reduce ? undefined : "transform" }}
+      >
+        <motion.article
+          whileHover={reduce ? undefined : { scale: 1.06 }}
+          transition={{ type: "spring", stiffness: 260, damping: 22 }}
+          tabIndex={0}
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+          aria-label={`${p.name} — ${p.role}. ${p.desc}`}
+          style={{ "--bubble-hue": hue } as React.CSSProperties}
+          className={`bubble-glass group relative flex aspect-square w-full flex-col items-center justify-center overflow-hidden rounded-full px-[14%] text-center transition-shadow duration-500 hover:shadow-glow ${
+            reduce ? "" : "bubble-wobble"
+          }`}
+        >
+          {/* Soap-film iridescence around the rim. Applied unconditionally —
+              the class carries the gradient, and the global reduced-motion
+              rule already halts its rotation. */}
+          <span
+            className="bubble-iridescence pointer-events-none absolute inset-0 rounded-full opacity-70"
+            aria-hidden
+          />
+
+          {/* Specular hotspot — the highlight that sells it as a sphere. */}
+          <span
+            className="pointer-events-none absolute left-[16%] top-[10%] h-[26%] w-[34%] -rotate-12 rounded-[50%] bg-white/25 blur-md"
+            aria-hidden
+          />
+          <span
+            className="pointer-events-none absolute left-[24%] top-[19%] h-[6%] w-[10%] rounded-full bg-white/50 blur-[2px]"
+            aria-hidden
+          />
+          {/* Refraction crescent along the lower rim. */}
+          <span
+            className="pointer-events-none absolute inset-[6%] rounded-full border border-transparent [border-bottom-color:oklch(1_0_0_/_0.16)] [border-right-color:oklch(1_0_0_/_0.09)]"
+            aria-hidden
+          />
+
+          {/* Top and bottom rows sit where the circle narrows, so they get an
+              extra inset — a full-width box corner would breach the rim. */}
+          <span className="relative max-w-[85%] text-[9px] font-semibold uppercase tracking-[0.14em] text-teal">
+            {p.tag}
+          </span>
+
+          <h3 className="relative mt-1.5 font-display text-lg font-bold leading-tight sm:text-xl">
+            {p.name}
+          </h3>
+
+          <span className="relative mt-1 font-mono text-[9px] uppercase tracking-wider text-amber">
+            {p.role}
+          </span>
+
+          <p
+            className={`relative mt-2.5 text-[11px] leading-snug text-muted-foreground transition-all duration-300 ${
+              open ? "" : "line-clamp-3"
+            }`}
+          >
+            {p.desc}
+          </p>
+
+          <span className="relative mt-3 flex max-w-[88%] flex-wrap items-center justify-center gap-1">
+            {visibleTech.map((t) => (
+              <span
+                key={t}
+                className="rounded-full border border-white/12 bg-white/8 px-2 py-0.5 font-mono text-[9px] text-foreground/75"
+              >
+                {t}
+              </span>
+            ))}
+            {hiddenTech > 0 && (
+              <span className="rounded-full border border-white/12 bg-white/8 px-2 py-0.5 font-mono text-[9px] text-foreground/55">
+                +{hiddenTech}
+              </span>
+            )}
+          </span>
+
+          {p.outcome && (
+            <span className="relative mt-2 text-[10px] font-medium text-teal">{p.outcome}</span>
+          )}
+        </motion.article>
+      </motion.div>
+
+      {/* Status pill rides the bubble's edge so it costs no room inside. */}
+      <span className="pointer-events-none absolute bottom-[7%] right-[3%] z-10 inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-[oklch(0.18_0.02_250)] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-emerald-300 shadow-card">
+        <CheckCircle2 className="h-2.5 w-2.5" /> Completed
+      </span>
+    </motion.div>
+  );
+}
+
+const NAV_LINKS = [
+  { href: "#work", label: "Work" },
+  { href: "#expertise", label: "Expertise" },
+  { href: "#experience", label: "Experience" },
+  { href: "#engagements", label: "Engagements" },
+  { href: "#faq", label: "FAQ" },
+];
 
 // ---------- page ----------
 function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.3]);
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 90]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.4]);
 
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showAllProjects, setShowAllProjects] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  // Lock body scroll behind the mobile menu.
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
+  const visibleProjects = showAllProjects ? PROJECTS : PROJECTS.filter((p) => p.featured);
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground overflow-x-hidden">
+    <div className="dark min-h-screen overflow-x-hidden bg-background text-foreground">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
+      >
+        Skip to content
+      </a>
+
       {/* NAV */}
-      <motion.header
-        initial={{ y: -40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
+      <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled ? "py-3" : "py-5"}`}
       >
-        <div className={`mx-auto flex max-w-7xl items-center justify-between px-6 ${scrolled ? "glass-strong rounded-full mx-4 sm:mx-auto sm:max-w-6xl" : ""} transition-all duration-300 ${scrolled ? "py-2.5" : ""}`}>
-          <a href="#top" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand text-primary-foreground shadow-glow">MB</span>
+        <div
+          className={`mx-auto flex max-w-7xl items-center justify-between px-6 transition-all duration-300 ${
+            scrolled
+              ? "glass-strong mx-4 rounded-full py-2.5 shadow-card sm:mx-auto sm:max-w-6xl"
+              : ""
+          }`}
+        >
+          <a
+            href="#top"
+            className="flex items-center gap-2.5 font-display text-base font-bold tracking-tight"
+          >
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand text-sm text-primary-foreground shadow-glow">
+              MB
+            </span>
             <span className="hidden sm:inline">Manoj Barad</span>
           </a>
-          <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-            <a href="#expertise" className="hover:text-foreground transition">Expertise</a>
-            <a href="#projects" className="hover:text-foreground transition">Projects</a>
-            <a href="#experience" className="hover:text-foreground transition">Experience</a>
-            <a href="#services" className="hover:text-foreground transition">Services</a>
-            <a href="#contact" className="hover:text-foreground transition">Contact</a>
+
+          <nav
+            aria-label="Primary"
+            className="hidden items-center gap-7 text-sm text-muted-foreground lg:flex"
+          >
+            {NAV_LINKS.map((l) => (
+              <a key={l.href} href={l.href} className="transition hover:text-foreground">
+                {l.label}
+              </a>
+            ))}
           </nav>
-          <a href="#contact" className="group inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition hover:opacity-90">
-            Hire Me <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-          </a>
-        </div>
-      </motion.header>
 
-      {/* HERO */}
-      <div ref={heroRef} id="top" className="relative bg-hero pt-32 pb-24 sm:pt-40 sm:pb-32">
-        <div className="absolute inset-0 grid-bg pointer-events-none" />
-        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative mx-auto max-w-7xl px-6">
-          <div className="grid items-center gap-14 lg:grid-cols-[1.15fr_1fr]">
-            <div>
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-                className="inline-flex items-center gap-2 rounded-full glass px-3 py-1.5 text-xs font-medium">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-60" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-teal" />
-                </span>
-                Available for select Q1 2026 engagements
-              </motion.div>
-
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }}
-                className="mt-6 font-display text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
-              >
-                Senior Software <br className="hidden sm:block" />
-                <span className="text-gradient">Architect</span>
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}
-                className="mt-3 text-lg font-semibold tracking-wide text-muted-foreground sm:text-xl"
-              >
-                Mobile · Web · Node · Angular · Cloud Fullstack
-              </motion.p>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-                className="mt-6 max-w-xl text-lg text-muted-foreground sm:text-xl"
-              >
-                12+ years designing and shipping enterprise-grade iOS, Flutter, AI, BLE and IoT applications for startups, healthcare pioneers and Fortune 500 teams.
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-                className="mt-8 flex flex-wrap gap-3"
-              >
-                <a href="#contact" className="group inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90">
-                  Hire Me <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-                </a>
-                <a href="#contact" className="inline-flex items-center gap-2 rounded-full glass-strong px-6 py-3 text-sm font-semibold hover:bg-white/5 transition">
-                  <Calendar className="h-4 w-4" /> Schedule Meeting
-                </a>
-                <a href="https://wa.me/" className="inline-flex items-center gap-2 rounded-full glass px-6 py-3 text-sm font-semibold hover:bg-white/5 transition">
-                  <MessageCircle className="h-4 w-4" /> WhatsApp
-                </a>
-                <a href="#" className="inline-flex items-center gap-2 rounded-full glass px-6 py-3 text-sm font-semibold hover:bg-white/5 transition">
-                  <Download className="h-4 w-4" /> Resume
-                </a>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
-                className="mt-14 grid grid-cols-2 gap-6 sm:grid-cols-4"
-              >
-                {STATS.map((s) => (
-                  <div key={s.label}>
-                    <div className="font-display text-3xl font-bold text-gradient sm:text-4xl">
-                      <Counter value={s.value} />
-                    </div>
-                    <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.label}</div>
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-
-            {/* Portrait */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.9 }}
-              className="relative mx-auto w-full max-w-md"
+          <div className="flex items-center gap-2">
+            <a
+              href="#contact"
+              className="group hidden items-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90 sm:inline-flex"
             >
-              <div className="absolute -inset-8 rounded-[2rem] bg-brand opacity-30 blur-3xl" />
-              <div className="relative overflow-hidden rounded-[2rem] glass-strong shadow-card">
-                <img
-                  src={portrait}
-                  alt="Manoj Barad — Senior Software Architect"
-                  width={1200}
-                  height={1200}
-                  className="h-full w-full object-cover"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/70 to-transparent p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-10 w-10 place-items-center rounded-full bg-brand shadow-glow">
-                      <Award className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold">Top-Rated on Upwork</div>
-                      <div className="text-xs text-muted-foreground">150+ delivered · 12+ years</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 5, repeat: Infinity }}
-                className="absolute -left-6 top-10 hidden rounded-2xl glass-strong p-3 shadow-card sm:block">
-                <div className="flex items-center gap-2">
-                  <Heart className="h-4 w-4 text-rose-400" />
-                  <div className="text-xs">
-                    <div className="font-semibold">HealthKit · BLE</div>
-                    <div className="text-muted-foreground">Medical-grade</div>
-                  </div>
-                </div>
-              </motion.div>
-              <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 6, repeat: Infinity, delay: 1 }}
-                className="absolute -right-6 bottom-24 hidden rounded-2xl glass-strong p-3 shadow-card sm:block">
-                <div className="flex items-center gap-2">
-                  <Brain className="h-4 w-4 text-amber" />
-                  <div className="text-xs">
-                    <div className="font-semibold">GPT · Claude · RAG</div>
-                    <div className="text-muted-foreground">Production AI</div>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-
-          <div className="mt-16 flex justify-center">
-            <ChevronDown className="h-5 w-5 animate-bounce text-muted-foreground" />
-          </div>
-        </motion.div>
-      </div>
-
-      {/* MARQUEE */}
-      <div className="relative border-y border-border/50 bg-card/30 py-6 overflow-hidden">
-        <div className="flex animate-marquee gap-14 whitespace-nowrap text-xs uppercase tracking-[0.3em] text-muted-foreground">
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="flex items-center gap-14">
-              {["Healthcare", "AI / LLM", "Fintech", "IoT & Wearables", "Enterprise SaaS", "BLE", "Telemedicine", "Flutter", "SwiftUI", "OpenAI", "HealthKit"].map((x) => (
-                <span key={x} className="flex items-center gap-14">{x}<span className="h-1 w-1 rounded-full bg-teal" /></span>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ABOUT */}
-      <Section id="about">
-        <div className="grid gap-14 lg:grid-cols-[1fr_1.4fr]">
-          <Reveal>
-            <SectionLabel>About</SectionLabel>
-            <h2 className="font-display text-4xl font-bold sm:text-5xl">
-              Built for teams that <span className="text-gradient">can't afford to ship poorly.</span>
-            </h2>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <div className="space-y-5 text-lg text-muted-foreground leading-relaxed">
-              <p>
-                I'm Manoj — a Senior Mobile Application Architect with 12+ years of hands-on experience turning ambitious product ideas into reliable, production-grade mobile applications. My work has powered healthcare platforms, fintech products, IoT ecosystems, and AI-first apps used by hundreds of thousands of people worldwide.
-              </p>
-              <p>
-                I specialise in <span className="text-foreground font-medium">Native iOS (Swift/SwiftUI/UIKit)</span>, <span className="text-foreground font-medium">Flutter</span>, <span className="text-foreground font-medium">AI integration</span> (OpenAI, Claude, Gemini, RAG), <span className="text-foreground font-medium">BLE & IoT</span>, and <span className="text-foreground font-medium">HIPAA-conscious healthcare architecture</span>. I lead squads, mentor engineers, and personally write the code that has to work when it matters most.
-              </p>
-              <p>
-                Clients hire me because I combine the engineering rigor of an enterprise architect with the speed and pragmatism of a founding engineer.
-              </p>
-              <div className="flex flex-wrap gap-2 pt-3">
-                {["Swift Expert", "SwiftUI", "Flutter", "AI · LLM", "BLE / IoT", "Healthcare", "Clean Architecture", "Team Leadership"].map((t) => (
-                  <span key={t} className="rounded-full glass px-3 py-1.5 text-xs font-medium">{t}</span>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </Section>
-
-      {/* EXPERTISE */}
-      <Section id="expertise">
-        <Reveal>
-          <div className="mx-auto max-w-2xl text-center">
-            <SectionLabel>My Expertise</SectionLabel>
-            <h2 className="font-display text-4xl font-bold sm:text-5xl">A full-stack mobile <span className="text-gradient">delivery capability</span></h2>
-            <p className="mt-4 text-muted-foreground">From the first Figma frame to a five-star App Store launch — one accountable engineer, zero handoff friction.</p>
-          </div>
-        </Reveal>
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {EXPERTISE.map((e, i) => (
-            <Reveal key={e.title} delay={i * 0.05}>
-              <div className="group relative h-full overflow-hidden rounded-2xl glass p-6 transition-all hover:-translate-y-1 hover:shadow-glow">
-                <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-teal-soft blur-2xl opacity-0 transition-opacity group-hover:opacity-100" />
-                <div className="relative">
-                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-teal-soft text-teal">
-                    <e.icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="mt-4 text-lg font-semibold">{e.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{e.desc}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
-
-      {/* INDUSTRIES */}
-      <Section id="industries" className="!py-20">
-        <Reveal>
-          <div className="mx-auto max-w-2xl text-center">
-            <SectionLabel>Industries</SectionLabel>
-            <h2 className="font-display text-3xl font-bold sm:text-4xl">Deep domain experience where <span className="text-gradient">it counts</span></h2>
-          </div>
-        </Reveal>
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-          {INDUSTRIES.map((ind, i) => (
-            <Reveal key={ind.name} delay={i * 0.05}>
-              <div className="flex flex-col items-center gap-3 rounded-2xl glass p-6 text-center transition hover:bg-white/5">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-amber-soft text-amber">
-                  <ind.icon className="h-6 w-6" />
-                </div>
-                <div className="text-sm font-medium">{ind.name}</div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
-
-      {/* PROJECTS */}
-      <Section id="projects">
-        <Reveal>
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div className="max-w-xl">
-              <SectionLabel>Selected Work</SectionLabel>
-              <h2 className="font-display text-4xl font-bold sm:text-5xl">Real products. <span className="text-gradient">Real outcomes.</span></h2>
-              <p className="mt-4 text-muted-foreground">A curated slice of shipped applications across healthcare, IoT, EV, fintech and consumer — spanning iOS, Flutter and React Native.</p>
-            </div>
-            <a href="#contact" className="inline-flex items-center gap-2 text-sm font-medium text-teal hover:underline">
-              Request full case studies <ChevronRight className="h-4 w-4" />
+              Start a project
+              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
             </a>
-          </div>
-        </Reveal>
-        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {PROJECTS.map((p, i) => (
-            <Reveal key={p.name} delay={i * 0.05}>
-              <article className={`group relative flex h-full flex-col overflow-hidden rounded-2xl glass p-6 transition-all hover:-translate-y-1 hover:shadow-card`}>
-                <div className={`absolute inset-0 bg-gradient-to-br ${p.color} opacity-40 pointer-events-none`} />
-                <div className="relative flex flex-1 flex-col">
-                  <div className="flex items-center justify-between">
-                    <span className="rounded-full bg-black/30 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-teal">{p.tag}</span>
-                    <ExternalLink className="h-4 w-4 text-muted-foreground transition group-hover:text-foreground" />
-                  </div>
-                  <h3 className="mt-6 font-display text-2xl font-bold">{p.name}</h3>
-                  <div className="mt-1 text-xs font-mono uppercase tracking-widest text-amber">{p.role}</div>
-                  <p className="mt-3 flex-1 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
-                  <dl className="mt-4 grid grid-cols-3 gap-2 text-[10px] font-mono uppercase tracking-wider text-muted-foreground border-t border-white/5 pt-3">
-                    <div><dt className="text-teal/70">Duration</dt><dd className="mt-0.5 text-foreground/80 normal-case tracking-normal">{p.duration}</dd></div>
-                    <div><dt className="text-teal/70">Team</dt><dd className="mt-0.5 text-foreground/80 normal-case tracking-normal">{p.team}</dd></div>
-                    <div><dt className="text-teal/70">Tools</dt><dd className="mt-0.5 text-foreground/80 normal-case tracking-normal">{p.tools}</dd></div>
-                  </dl>
-                  <div className="mt-4 flex flex-wrap gap-1.5">
-                    {p.tech.map((t) => (
-                      <span key={t} className="rounded-md bg-white/5 px-2 py-1 text-[11px] font-mono text-muted-foreground">{t}</span>
-                    ))}
-                  </div>
-                </div>
-              </article>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
-
-      {/* EXPERIENCE TIMELINE */}
-      <Section id="experience">
-        <Reveal>
-          <div className="mx-auto max-w-2xl text-center">
-            <SectionLabel>Experience</SectionLabel>
-            <h2 className="font-display text-4xl font-bold sm:text-5xl">A decade+ of <span className="text-gradient">shipping at scale</span></h2>
-          </div>
-        </Reveal>
-        <div className="relative mt-14 mx-auto max-w-3xl">
-          <div className="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-teal via-amber to-transparent sm:left-1/2" />
-          {TIMELINE.map((t, i) => (
-            <Reveal key={t.year} delay={i * 0.08}>
-              <div className={`relative mb-10 grid gap-4 sm:grid-cols-2 ${i % 2 ? "sm:[&>div:first-child]:col-start-2" : ""}`}>
-                <div className={`pl-12 sm:pl-0 ${i % 2 ? "sm:pl-12" : "sm:text-right sm:pr-12"}`}>
-                  <div className="absolute left-2 top-2 h-4 w-4 rounded-full bg-brand shadow-glow sm:left-1/2 sm:-translate-x-1/2" />
-                  <div className="text-xs font-mono uppercase tracking-widest text-teal">{t.year}</div>
-                  <div className="mt-1 font-display text-xl font-bold">{t.role}</div>
-                  <div className="text-sm text-muted-foreground">{t.org}</div>
-                  <p className={`mt-3 text-sm text-muted-foreground leading-relaxed`}>{t.detail}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
-
-      {/* TECH STACK */}
-      <Section id="stack" className="!py-20">
-        <Reveal>
-          <div className="mx-auto max-w-2xl text-center">
-            <SectionLabel>Tech Stack</SectionLabel>
-            <h2 className="font-display text-4xl font-bold sm:text-5xl">The tools I <span className="text-gradient">reach for daily</span></h2>
-          </div>
-        </Reveal>
-        <div className="mt-12 flex flex-wrap justify-center gap-2.5">
-          {TECH.map((t, i) => (
-            <motion.span
-              key={t}
-              initial={{ opacity: 0, scale: 0.85 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.02 }}
-              className="rounded-full glass-strong px-4 py-2 text-sm font-medium hover:bg-white/10 transition"
+            <button
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              aria-label="Open menu"
+              aria-expanded={menuOpen}
+              className="grid h-9 w-9 place-items-center rounded-lg border border-hairline bg-surface lg:hidden"
             >
-              {t}
-            </motion.span>
-          ))}
-        </div>
-      </Section>
-
-      {/* SERVICES */}
-      <Section id="services">
-        <Reveal>
-          <div className="mx-auto max-w-2xl text-center">
-            <SectionLabel>Services</SectionLabel>
-            <h2 className="font-display text-4xl font-bold sm:text-5xl">Ways we can <span className="text-gradient">work together</span></h2>
+              <Menu className="h-4.5 w-4.5" />
+            </button>
           </div>
-        </Reveal>
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {SERVICES.map((s, i) => (
-            <Reveal key={s.title} delay={i * 0.05}>
-              <div className="flex h-full flex-col rounded-2xl glass p-6 transition hover:bg-white/[0.06]">
-                <div className="grid h-10 w-10 place-items-center rounded-lg bg-teal-soft text-teal">
-                  <s.icon className="h-5 w-5" />
+        </div>
+      </header>
+
+      {/* MOBILE MENU */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-[55] lg:hidden">
+          <button
+            type="button"
+            aria-label="Close menu"
+            onClick={() => setMenuOpen(false)}
+            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+          />
+          <motion.nav
+            aria-label="Mobile"
+            initial={reduce ? false : { x: "100%" }}
+            animate={{ x: 0 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute inset-y-0 right-0 flex w-[min(20rem,85vw)] flex-col gap-1 border-l border-hairline bg-card p-6 shadow-lift"
+          >
+            <div className="mb-6 flex items-center justify-between">
+              <span className="font-display font-bold">Menu</span>
+              <button
+                type="button"
+                onClick={() => setMenuOpen(false)}
+                aria-label="Close menu"
+                className="grid h-9 w-9 place-items-center rounded-lg border border-hairline bg-surface"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            {NAV_LINKS.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg px-3 py-3 text-base font-medium text-muted-foreground transition hover:bg-surface hover:text-foreground"
+              >
+                {l.label}
+              </a>
+            ))}
+            <a
+              href="#contact"
+              onClick={() => setMenuOpen(false)}
+              className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-brand px-5 py-3 text-sm font-semibold text-primary-foreground shadow-glow"
+            >
+              Start a project <ArrowRight className="h-4 w-4" />
+            </a>
+          </motion.nav>
+        </div>
+      )}
+
+      <main id="main">
+        {/* HERO */}
+        <div ref={heroRef} id="top" className="relative bg-hero pt-28 pb-16 sm:pt-36 sm:pb-24">
+          <div className="grid-bg pointer-events-none absolute inset-0" aria-hidden />
+          <motion.div
+            style={reduce ? undefined : { y: heroY, opacity: heroOpacity }}
+            className="relative mx-auto max-w-7xl px-6"
+          >
+            <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+              {/* Left column */}
+              <div>
+                <motion.div
+                  initial={reduce ? false : { opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 }}
+                  className="inline-flex items-center gap-2 rounded-full border border-teal/25 bg-teal-soft px-3 py-1.5 text-xs font-medium text-teal"
+                >
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-60" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-teal" />
+                  </span>
+                  {AVAILABILITY}
+                </motion.div>
+
+                <motion.h1
+                  initial={reduce ? false : { opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.12, duration: 0.7 }}
+                  className="mt-6 font-display text-[2.4rem] font-bold leading-[1.07] tracking-tight sm:text-5xl lg:text-[3.5rem] xl:text-[3.9rem]"
+                >
+                  Senior iOS &amp; Flutter engineer for products that{" "}
+                  <span className="text-gradient">can&apos;t fail.</span>
+                </motion.h1>
+
+                <motion.p
+                  initial={reduce ? false : { opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.22 }}
+                  className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground"
+                >
+                  Twelve years building mobile apps where the difficult part is not the interface —
+                  medical devices, Bluetooth hardware, and AI features that have to be dependable.
+                  Designed, built and delivered by one senior engineer.{" "}
+                  <span className="font-medium text-foreground">
+                    No agency in between, no handovers, no junior developer taking over.
+                  </span>
+                </motion.p>
+
+                <motion.div
+                  initial={reduce ? false : { opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.32 }}
+                  className="mt-8 flex flex-wrap items-center gap-3"
+                >
+                  <a
+                    href="#contact"
+                    className="group inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90"
+                  >
+                    Start a project
+                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                  </a>
+                  {WHATSAPP && (
+                    <a
+                      href={WHATSAPP}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 text-sm font-semibold transition hover:border-teal/30 hover:bg-surface-strong"
+                    >
+                      <MessageCircle className="h-4 w-4 text-teal" /> WhatsApp
+                    </a>
+                  )}
+                  <a
+                    href="#work"
+                    className="inline-flex items-center gap-2 px-2 py-3.5 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+                  >
+                    See selected work
+                  </a>
+                  {CONTACT.resume && (
+                    <a
+                      href={CONTACT.resume}
+                      className="inline-flex items-center gap-2 px-2 py-3.5 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+                    >
+                      <Download className="h-4 w-4" /> CV
+                    </a>
+                  )}
+                </motion.div>
+
+                <motion.p
+                  initial={reduce ? false : { opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.45 }}
+                  className="mt-5 text-sm text-muted-foreground"
+                >
+                  Replies within 24 hours · Free scoping call · NDA on request
+                </motion.p>
+              </div>
+
+              {/* Portrait */}
+              <motion.div
+                initial={reduce ? false : { opacity: 0, scale: 0.94 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                className="relative mx-auto w-full max-w-[22rem] sm:max-w-[24rem] lg:mx-0 lg:ml-auto lg:max-w-[26rem]"
+              >
+                <div
+                  className="absolute -inset-5 rounded-[2.5rem] bg-brand opacity-[0.16] blur-3xl"
+                  aria-hidden
+                />
+                <figure className="relative overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-lift">
+                  {/* Fixed 4:5 frame — the source headshot is square, so the crop is
+                      horizontal and the face stays centred at every breakpoint. */}
+                  <div className="relative aspect-[4/5] w-full overflow-hidden">
+                    <img
+                      src={portrait}
+                      alt="Manoj Barad, senior iOS and Flutter engineer"
+                      width={1200}
+                      height={1200}
+                      loading="eager"
+                      decoding="async"
+                      className="portrait-tone absolute inset-0 h-full w-full object-cover object-[center_22%]"
+                    />
+                    {/* Scrim: keeps the bright studio backdrop from glaring, and gives
+                        the caption bar something to sit on. */}
+                    <div
+                      className="absolute inset-0 bg-gradient-to-b from-background/25 via-transparent to-background/80"
+                      aria-hidden
+                    />
+                    <div
+                      className="absolute inset-0 bg-gradient-to-tr from-[color-mix(in_oklch,var(--teal)_18%,transparent)] to-transparent mix-blend-soft-light"
+                      aria-hidden
+                    />
+                  </div>
+                  <figcaption className="flex items-center justify-between gap-4 border-t border-hairline bg-card/95 px-5 py-4 backdrop-blur">
+                    <div>
+                      <div className="font-display text-sm font-bold">Manoj Barad</div>
+                      <div className="mt-0.5 text-xs text-muted-foreground">
+                        Independent · {CONTACT.location}
+                      </div>
+                    </div>
+                    {CONTACT.upwork && (
+                      <a
+                        href={CONTACT.upwork}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-hairline bg-surface px-3 py-1.5 text-[11px] font-semibold text-teal transition hover:bg-surface-strong"
+                      >
+                        Upwork profile <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </figcaption>
+                </figure>
+
+                {/* Floating chips — inset so they never overflow the viewport. */}
+                <motion.div
+                  animate={reduce ? undefined : { y: [0, -8, 0] }}
+                  transition={{ duration: 5, repeat: Infinity }}
+                  className="absolute -left-3 top-8 hidden rounded-xl border border-hairline bg-card/95 p-3 shadow-card backdrop-blur sm:block"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Bluetooth className="h-4 w-4 shrink-0 text-teal" />
+                    <div className="text-xs">
+                      <div className="font-semibold">BLE &amp; HealthKit</div>
+                      <div className="text-muted-foreground">Connected devices</div>
+                    </div>
+                  </div>
+                </motion.div>
+                <motion.div
+                  animate={reduce ? undefined : { y: [0, 8, 0] }}
+                  transition={{ duration: 6, repeat: Infinity, delay: 1 }}
+                  className="absolute -right-3 bottom-28 hidden rounded-xl border border-hairline bg-card/95 p-3 shadow-card backdrop-blur sm:block"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Brain className="h-4 w-4 shrink-0 text-amber" />
+                    <div className="text-xs">
+                      <div className="font-semibold">GPT · Claude · RAG</div>
+                      <div className="text-muted-foreground">Production AI</div>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* STATS BAND */}
+        <div className="border-y border-hairline bg-card/40">
+          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px px-6 sm:grid-cols-4">
+            {STATS.map((s) => (
+              <div key={s.label} className="py-8 sm:py-10">
+                <div className="font-display text-3xl font-bold text-gradient sm:text-4xl">
+                  <Counter value={s.value} />
                 </div>
-                <h3 className="mt-4 font-semibold">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                <div className="mt-1.5 text-xs leading-snug text-muted-foreground">{s.label}</div>
               </div>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
-
-      {/* PROCESS */}
-      <Section id="process" className="!py-20">
-        <Reveal>
-          <div className="mx-auto max-w-2xl text-center">
-            <SectionLabel>Process</SectionLabel>
-            <h2 className="font-display text-4xl font-bold sm:text-5xl">A calm, <span className="text-gradient">predictable</span> way to build</h2>
+            ))}
           </div>
-        </Reveal>
-        <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {PROCESS.map((p, i) => (
-            <Reveal key={p.step} delay={i * 0.08}>
-              <div className="relative overflow-hidden rounded-2xl glass p-6">
-                <div className="font-mono text-6xl font-bold text-teal opacity-20">{p.step}</div>
-                <h3 className="mt-2 font-display text-xl font-bold">{p.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
-              </div>
-            </Reveal>
-          ))}
         </div>
-      </Section>
 
-      {/* WHY HIRE ME */}
-      <Section id="why">
-        <div className="rounded-3xl glass-strong p-8 sm:p-14">
-          <Reveal>
-            <SectionLabel>Why Clients Choose Me</SectionLabel>
-            <h2 className="font-display text-4xl font-bold sm:text-5xl">
-              You get a <span className="text-gradient">senior architect</span>, not a code monkey.
-            </h2>
-          </Reveal>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              "12+ years shipping production mobile apps",
-              "Clean, modular, testable architecture",
-              "Deep healthcare & HIPAA-friendly experience",
-              "AI integration expertise (LLMs, RAG, embeddings)",
-              "BLE / IoT specialist for wearables & sensors",
-              "Pixel-perfect UI with obsessive attention to detail",
-              "Fast, transparent communication in your time zone",
-              "Long-term support after launch",
-              "Reliable, on-time delivery — every sprint",
-            ].map((w, i) => (
-              <Reveal key={w} delay={i * 0.04}>
-                <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-4">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-teal" />
-                  <span className="text-sm">{w}</span>
+        {/* TRUST — the "not an agency" promise, above the fold on most laptops */}
+        <Section className="!py-16">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {TRUST.map((t, i) => (
+              <Reveal key={t.title} delay={i * 0.05}>
+                <div className="flex h-full flex-col rounded-2xl card-surface p-6">
+                  <div className="grid h-10 w-10 place-items-center rounded-lg bg-teal-soft text-teal">
+                    <t.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-4 text-sm font-semibold">{t.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.desc}</p>
                 </div>
               </Reveal>
             ))}
           </div>
-        </div>
-      </Section>
+        </Section>
 
-      {/* TESTIMONIALS */}
-      <Section id="testimonials" className="!py-20">
-        <Reveal>
-          <div className="mx-auto max-w-2xl text-center">
-            <SectionLabel>Testimonials</SectionLabel>
-            <h2 className="font-display text-4xl font-bold sm:text-5xl">Trusted by <span className="text-gradient">founders & CTOs</span></h2>
+        {/* MARQUEE */}
+        <div className="relative overflow-hidden border-y border-hairline bg-card/30 py-5">
+          <div className="flex animate-marquee gap-12 whitespace-nowrap text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="flex items-center gap-12" aria-hidden={i === 1}>
+                {[
+                  "Healthcare",
+                  "Medical devices",
+                  "BLE & IoT",
+                  "Wearables",
+                  "AI / LLM",
+                  "Fintech",
+                  "Enterprise SaaS",
+                  "Telemedicine",
+                  "SwiftUI",
+                  "Flutter",
+                ].map((x) => (
+                  <span key={x} className="flex items-center gap-12">
+                    {x}
+                    <span className="h-1 w-1 rounded-full bg-teal" />
+                  </span>
+                ))}
+              </div>
+            ))}
           </div>
-        </Reveal>
-        <div className="mt-14 grid gap-5 md:grid-cols-3">
-          {TESTIMONIALS.map((t, i) => (
-            <Reveal key={i} delay={i * 0.08}>
-              <figure className="flex h-full flex-col rounded-2xl glass p-6">
-                <div className="flex gap-0.5">
-                  {Array.from({ length: 5 }).map((_, k) => <Star key={k} className="h-4 w-4 fill-amber text-amber" />)}
-                </div>
-                <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-foreground/90">"{t.quote}"</blockquote>
-                <figcaption className="mt-6 text-xs uppercase tracking-widest text-muted-foreground">{t.author}</figcaption>
-              </figure>
+        </div>
+
+        {/* ABOUT */}
+        <Section id="about">
+          <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+            <Reveal>
+              <SectionHeading
+                align="left"
+                label="About"
+                title="An engineer you hire,"
+                accent="not a vendor you manage."
+              />
             </Reveal>
-          ))}
-        </div>
-      </Section>
+            <Reveal delay={0.1}>
+              <div className="space-y-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
+                <p>
+                  I am Manoj Barad, an independent senior mobile engineer based in Ahmedabad, India.
+                  For twelve years I have built iOS and Flutter applications for companies in the
+                  United States, the United Kingdom, Europe, the Middle East and India.
+                </p>
+                <p>
+                  Clients usually come to me with one of four problems: a companion app for a
+                  medical or Bluetooth device, a healthcare product that has to handle patient data
+                  safely, an AI feature that has to work reliably rather than only demonstrate well,
+                  or an existing app that has become too slow or too fragile to extend.
+                </p>
+                <p>
+                  I am not an agency, and I do not pass work to subcontractors. You deal directly
+                  with the engineer who writes your code — through architecture, development and App
+                  Store submission, and afterwards when something needs fixing.
+                </p>
+                <p>
+                  My core skill is <span className="font-medium text-foreground">native iOS</span>.
+                  I have worked through Objective-C and Swift to SwiftUI, and I also build
+                  production apps in <span className="font-medium text-foreground">Flutter</span>{" "}
+                  and React Native when one codebase for both platforms is the sensible choice. My
+                  strongest domains are{" "}
+                  <span className="font-medium text-foreground">healthcare</span>,{" "}
+                  <span className="font-medium text-foreground">
+                    Bluetooth and connected hardware
+                  </span>
+                  , and <span className="font-medium text-foreground">applied AI</span>.
+                </p>
+                <p>
+                  I work in English, keep a daily overlap with your business hours, and send a short
+                  written update every working day — so you always know what was finished, what is
+                  next, and where the risks are.
+                </p>
 
-      {/* FAQ */}
-      <Section id="faq">
-        <Reveal>
-          <div className="mx-auto max-w-2xl text-center">
-            <SectionLabel>FAQ</SectionLabel>
-            <h2 className="font-display text-4xl font-bold sm:text-5xl">Common <span className="text-gradient">client questions</span></h2>
+                <div className="grid gap-3 pt-4 sm:grid-cols-2">
+                  {WHY.slice(0, 6).map((w) => (
+                    <div key={w} className="flex items-start gap-2.5">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
+                      <span className="text-sm text-foreground/85">{w}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
           </div>
-        </Reveal>
-        <div className="mx-auto mt-12 max-w-3xl divide-y divide-border/50 rounded-2xl glass overflow-hidden">
-          {FAQ.map((f, i) => (
-            <button
-              key={f.q}
-              onClick={() => setOpenFaq(openFaq === i ? null : i)}
-              className="block w-full text-left"
-            >
-              <div className="flex items-center justify-between p-6">
-                <span className="pr-6 font-medium">{f.q}</span>
-                <ChevronDown className={`h-5 w-5 shrink-0 text-teal transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
-              </div>
-              <motion.div
-                initial={false}
-                animate={{ height: openFaq === i ? "auto" : 0, opacity: openFaq === i ? 1 : 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden"
-              >
-                <p className="px-6 pb-6 text-sm text-muted-foreground leading-relaxed">{f.a}</p>
-              </motion.div>
-            </button>
-          ))}
-        </div>
-      </Section>
+        </Section>
 
-      {/* CONTACT / CTA */}
-      <Section id="contact">
-        <div className="relative overflow-hidden rounded-3xl bg-brand p-10 shadow-glow sm:p-16">
-          <div className="absolute inset-0 grid-bg opacity-30" />
-          <div className="relative grid gap-10 lg:grid-cols-[1.3fr_1fr]">
-            <div>
-              <h2 className="font-display text-4xl font-bold text-primary-foreground sm:text-5xl">
-                Have a product that has to <em className="not-italic underline decoration-white/40">work?</em>
-              </h2>
-              <p className="mt-4 max-w-xl text-lg text-primary-foreground/80">
-                Let's talk. Share your idea, timeline and constraints — I'll come back within 24 hours with a clear next step.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <a href="mailto:hello@manojbarad.com" className="inline-flex items-center gap-2 rounded-full bg-background px-6 py-3 text-sm font-semibold text-foreground shadow-card transition hover:opacity-90">
-                  <Mail className="h-4 w-4" /> Email me
-                </a>
-                <a href="https://wa.me/" className="inline-flex items-center gap-2 rounded-full bg-black/20 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur transition hover:bg-black/30">
-                  <MessageCircle className="h-4 w-4" /> WhatsApp
-                </a>
-                <a href="#" className="inline-flex items-center gap-2 rounded-full bg-black/20 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur transition hover:bg-black/30">
-                  <Calendar className="h-4 w-4" /> Schedule call
-                </a>
-              </div>
-            </div>
-            <div className="grid gap-3 self-center">
-              {[
-                { icon: Mail, label: "Email", value: "hello@manojbarad.com" },
-                { icon: Phone, label: "Phone", value: "+91 · Available on request" },
-                { icon: MapPin, label: "Based in", value: "Ahmedabad, India · Global clients" },
-                { icon: Linkedin, label: "LinkedIn", value: "linkedin.com/in/manoj-barad" },
-                { icon: Github, label: "GitHub", value: "github.com/manoj-barad" },
-                { icon: ExternalLink, label: "Upwork", value: "Top-Rated · 12+ years" },
-              ].map((c) => (
-                <div key={c.label} className="flex items-center gap-3 rounded-xl bg-black/20 p-3 backdrop-blur">
-                  <div className="grid h-9 w-9 place-items-center rounded-lg bg-white/10 text-primary-foreground">
-                    <c.icon className="h-4 w-4" />
+        {/* EXPERTISE */}
+        <Section id="expertise">
+          <Reveal>
+            <SectionHeading
+              label="Expertise"
+              title="Where I'm genuinely"
+              accent="add the most value"
+              sub="Many developers can build a screen. The difficulty is in the parts that fail after launch — hardware connections, patient data, background activity and App Store review."
+            />
+          </Reveal>
+          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {EXPERTISE.map((e, i) => (
+              <Reveal key={e.title} delay={i * 0.04}>
+                <div className="group h-full rounded-2xl card-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-teal/25 hover:shadow-card">
+                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-teal-soft text-teal transition group-hover:scale-105">
+                    <e.icon className="h-5 w-5" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] uppercase tracking-widest text-primary-foreground/60">{c.label}</div>
-                    <div className="truncate text-sm font-medium text-primary-foreground">{c.value}</div>
+                  <h3 className="mt-4 font-display text-base font-bold">{e.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{e.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* Industries strip */}
+          <Reveal delay={0.1}>
+            <div className="mt-6 grid gap-3 rounded-2xl card-surface p-6 sm:grid-cols-3 lg:grid-cols-6">
+              {INDUSTRIES.map((ind) => (
+                <div key={ind.name} className="flex items-center gap-3">
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-amber-soft text-amber">
+                    <ind.icon className="h-4 w-4" />
                   </div>
+                  <span className="text-xs font-medium leading-tight">{ind.name}</span>
                 </div>
               ))}
             </div>
+          </Reveal>
+
+          {/* Tech stack */}
+          <Reveal delay={0.15}>
+            <div className="mt-10">
+              <div className="mb-5 text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                Day-to-day stack
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                {TECH.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-lg border border-hairline bg-surface px-3 py-1.5 font-mono text-xs text-muted-foreground transition hover:border-teal/25 hover:text-foreground"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        </Section>
+
+        {/* WORK — water-bubble cluster */}
+        <Section id="work" className="relative">
+          {/* Underwater ambience: two deep glows plus small bubbles drifting
+              upward. Decorative only, and static under reduced motion. */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+            <div className="absolute left-[6%] top-[18%] h-64 w-64 rounded-full bg-brand opacity-[0.07] blur-3xl" />
+            <div className="absolute right-[4%] top-[52%] h-72 w-72 rounded-full bg-brand opacity-[0.05] blur-3xl" />
+            {!reduce &&
+              RISING_BUBBLES.map((b, i) => (
+                <span
+                  key={i}
+                  className="bubble-rise absolute bottom-0 rounded-full border border-white/10 bg-white/[0.04]"
+                  style={{
+                    left: b.left,
+                    height: b.size,
+                    width: b.size,
+                    animationDuration: b.duration,
+                    animationDelay: b.delay,
+                  }}
+                />
+              ))}
           </div>
-        </div>
-      </Section>
+
+          <Reveal>
+            <div className="relative flex flex-wrap items-end justify-between gap-6">
+              <SectionHeading
+                align="left"
+                label="Selected work"
+                title="Delivered, live,"
+                accent="and in daily use."
+                sub="Every project below is delivered and live — not a concept piece or a portfolio exercise. Healthcare, connected hardware, payments and consumer, across iOS, Flutter and React Native."
+              />
+              <a
+                href="#contact"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal transition hover:gap-2.5"
+              >
+                Request detailed case studies <ChevronRight className="h-4 w-4" />
+              </a>
+            </div>
+          </Reveal>
+
+          {/* Cluster, not a grid: tight gaps let the spheres nearly touch, and
+              every second column is pushed down so the rows interlock like
+              packed bubbles instead of lining up in a table. */}
+          {/* Gutters are tuned against the wander amplitude (±28px): ~77px
+              horizontal and ~44px vertical at rest, so converging neighbours
+              close to roughly 21px and 16px — visibly near, never colliding.
+              Widen these if you increase the amplitudes in WANDER. */}
+          <div className="relative mt-16 grid gap-x-4 gap-y-11 sm:grid-cols-2 sm:gap-x-3 lg:grid-cols-3 lg:gap-x-2">
+            {visibleProjects.map((p, i) => (
+              <div
+                key={p.name}
+                className={
+                  i % 2 === 1
+                    ? "sm:translate-y-10 lg:translate-y-0"
+                    : "sm:-translate-y-2 lg:translate-y-0"
+                }
+              >
+                <div className={i % 3 === 1 ? "lg:translate-y-14" : "lg:translate-y-0"}>
+                  <ProjectBubble project={p} index={i} reduce={!!reduce} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {PROJECTS.length > visibleProjects.length && (
+            <div className="relative mt-14 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setShowAllProjects(true)}
+                className="group inline-flex items-center gap-2 rounded-full border border-border bg-surface px-7 py-3.5 text-sm font-semibold transition hover:border-teal/30 hover:bg-surface-strong"
+              >
+                Show all {PROJECTS.length} projects
+                <ChevronDown className="h-4 w-4 transition group-hover:translate-y-0.5" />
+              </button>
+            </div>
+          )}
+        </Section>
+
+        {/* EXPERIENCE */}
+        <Section id="experience">
+          <Reveal>
+            <SectionHeading
+              label="Experience"
+              title="Twelve years of"
+              accent="shipping to real deadlines"
+            />
+          </Reveal>
+          <div className="relative mx-auto mt-14 max-w-3xl">
+            <div
+              className="absolute left-[7px] top-2 bottom-2 w-px bg-gradient-to-b from-teal via-teal/40 to-transparent"
+              aria-hidden
+            />
+            {TIMELINE.map((t, i) => (
+              <Reveal key={t.year} delay={i * 0.07}>
+                <div className="relative mb-10 pl-10 last:mb-0">
+                  <div className="absolute left-0 top-1.5 h-[15px] w-[15px] rounded-full border-2 border-background bg-brand shadow-glow" />
+                  <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-teal">
+                    {t.year}
+                  </div>
+                  <h3 className="mt-1.5 font-display text-lg font-bold">{t.role}</h3>
+                  <div className="text-sm text-muted-foreground">{t.org}</div>
+                  <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">{t.detail}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Section>
+
+        {/* ENGAGEMENTS */}
+        <Section id="engagements">
+          <Reveal>
+            <SectionHeading
+              label="Engagements"
+              title="Three ways to"
+              accent="work with me"
+              sub="Pick the one closest to your situation — it makes the first conversation much faster."
+            />
+          </Reveal>
+          <div className="mt-14 grid gap-5 lg:grid-cols-3">
+            {ENGAGEMENTS.map((e, i) => (
+              <Reveal key={e.name} delay={i * 0.07}>
+                <div
+                  className={`relative flex h-full flex-col rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1 ${
+                    e.highlight
+                      ? "border border-teal/35 bg-surface shadow-glow"
+                      : "card-surface hover:border-teal/20"
+                  }`}
+                >
+                  {e.highlight && (
+                    <span className="absolute -top-3 left-7 rounded-full bg-brand px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary-foreground">
+                      Most common
+                    </span>
+                  )}
+                  <div className="grid h-11 w-11 place-items-center rounded-xl bg-teal-soft text-teal">
+                    <e.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-5 font-display text-xl font-bold">{e.name}</h3>
+                  <div className="mt-1 text-xs font-medium text-amber">{e.best}</div>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{e.desc}</p>
+                  <ul className="mt-5 space-y-2.5 border-t border-hairline pt-5">
+                    {e.points.map((pt) => (
+                      <li key={pt} className="flex items-start gap-2.5 text-sm">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
+                        <span className="text-foreground/85">{pt}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <a
+                    href="#contact"
+                    className={`mt-6 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition ${
+                      e.highlight
+                        ? "bg-brand text-primary-foreground shadow-glow hover:opacity-90"
+                        : "border border-border bg-surface hover:bg-surface-strong"
+                    }`}
+                  >
+                    Enquire <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Section>
+
+        {/* PROCESS */}
+        <Section id="process" className="!py-20">
+          <Reveal>
+            <SectionHeading
+              label="Process"
+              title="A calm, predictable"
+              accent="way to build"
+              sub="No black boxes. You always know what's being built this week and what it will cost."
+            />
+          </Reveal>
+          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {PROCESS.map((p, i) => (
+              <Reveal key={p.step} delay={i * 0.07}>
+                <div className="relative h-full overflow-hidden rounded-2xl card-surface p-6">
+                  <div className="font-mono text-5xl font-bold text-teal opacity-15">{p.step}</div>
+                  <h3 className="mt-2 font-display text-lg font-bold">{p.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Section>
+
+        {/* TESTIMONIALS — renders only when real quotes exist. See TESTIMONIALS above. */}
+        {TESTIMONIALS.length > 0 && (
+          <Section id="testimonials" className="!py-20">
+            <Reveal>
+              <SectionHeading label="Client feedback" title="What clients" accent="actually said" />
+            </Reveal>
+            <div className="mt-14 grid gap-5 md:grid-cols-3">
+              {TESTIMONIALS.map((t) => (
+                <Reveal key={t.author}>
+                  <figure className="flex h-full flex-col rounded-2xl card-surface p-6">
+                    <blockquote className="flex-1 text-sm leading-relaxed text-foreground/90">
+                      &ldquo;{t.quote}&rdquo;
+                    </blockquote>
+                    <figcaption className="mt-6 border-t border-hairline pt-4">
+                      <div className="text-sm font-semibold">{t.author}</div>
+                      <div className="text-xs text-muted-foreground">{t.role}</div>
+                      {t.source && (
+                        <div className="mt-1 text-[11px] uppercase tracking-wider text-teal">
+                          via {t.source}
+                        </div>
+                      )}
+                    </figcaption>
+                  </figure>
+                </Reveal>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {/* FAQ */}
+        <Section id="faq">
+          <Reveal>
+            <SectionHeading label="FAQ" title="Questions clients" accent="ask first" />
+          </Reveal>
+          <div className="mx-auto mt-12 max-w-3xl divide-y divide-hairline overflow-hidden rounded-2xl card-surface">
+            {FAQ.map((f, i) => {
+              const open = openFaq === i;
+              return (
+                <div key={f.q}>
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(open ? null : i)}
+                    aria-expanded={open}
+                    aria-controls={`faq-panel-${i}`}
+                    className="flex w-full items-center justify-between gap-6 p-6 text-left transition hover:bg-surface-strong/50"
+                  >
+                    <span className="font-medium">{f.q}</span>
+                    <ChevronDown
+                      className={`h-5 w-5 shrink-0 text-teal transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  <motion.div
+                    id={`faq-panel-${i}`}
+                    role="region"
+                    initial={false}
+                    animate={{ height: open ? "auto" : 0, opacity: open ? 1 : 0 }}
+                    transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <p className="px-6 pb-6 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
+                  </motion.div>
+                </div>
+              );
+            })}
+          </div>
+        </Section>
+
+        {/* CONTACT */}
+        <Section id="contact">
+          <div className="relative overflow-hidden rounded-3xl border border-teal/20 bg-card p-8 shadow-lift sm:p-14">
+            <div className="grid-bg pointer-events-none absolute inset-0 opacity-60" aria-hidden />
+            <div
+              className="pointer-events-none absolute -left-32 -top-32 h-80 w-80 rounded-full bg-brand opacity-[0.13] blur-3xl"
+              aria-hidden
+            />
+            <div className="relative grid gap-12 lg:grid-cols-[1.25fr_1fr]">
+              <div>
+                <h2 className="font-display text-3xl font-bold sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
+                  Tell me what you&apos;re building.
+                </h2>
+                <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+                  Send the product, the platforms, a rough timeline and a budget range. Within 24
+                  hours you&apos;ll get a straight answer: whether it&apos;s buildable as scoped,
+                  what I&apos;d change, and what it costs. If I&apos;m not the right fit I&apos;ll
+                  say so and point you at someone who is.
+                </p>
+
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <a
+                    href={MAILTO}
+                    className="group inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90"
+                  >
+                    <Mail className="h-4 w-4" /> Email me
+                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                  </a>
+                  {CONTACT.calendar && (
+                    <a
+                      href={CONTACT.calendar}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 text-sm font-semibold transition hover:bg-surface-strong"
+                    >
+                      Book a 30-min call
+                    </a>
+                  )}
+                  {WHATSAPP && (
+                    <a
+                      href={WHATSAPP}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 text-sm font-semibold transition hover:bg-surface-strong"
+                    >
+                      <MessageCircle className="h-4 w-4" /> WhatsApp
+                    </a>
+                  )}
+                </div>
+
+                <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+                  <span className="inline-flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-teal" /> {CONTACT.location} · {CONTACT.timezone}
+                  </span>
+                  <span className="inline-flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-teal" /> Overlaps US, UK, EU &amp; MENA hours
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid content-start gap-3">
+                {[
+                  { icon: Mail, label: "Email", value: CONTACT.email, href: MAILTO },
+                  {
+                    icon: MessageCircle,
+                    label: "WhatsApp",
+                    value: CONTACT.whatsappDisplay,
+                    href: WHATSAPP,
+                  },
+                  {
+                    icon: ExternalLink,
+                    label: "Upwork",
+                    value: "Hire through Upwork",
+                    href: CONTACT.upwork,
+                  },
+                  { icon: Linkedin, label: "LinkedIn", value: "Connect", href: CONTACT.linkedin },
+                  { icon: Github, label: "GitHub", value: "Code samples", href: CONTACT.github },
+                ]
+                  .filter((c) => c.href)
+                  .map((c) => (
+                    <a
+                      key={c.label}
+                      href={c.href}
+                      target={c.href.startsWith("http") ? "_blank" : undefined}
+                      rel={c.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                      className="group flex items-center gap-3 rounded-xl border border-hairline bg-surface p-3.5 transition hover:border-teal/25 hover:bg-surface-strong"
+                    >
+                      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-teal-soft text-teal">
+                        <c.icon className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                          {c.label}
+                        </div>
+                        <div className="truncate text-sm font-medium">{c.value}</div>
+                      </div>
+                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-teal" />
+                    </a>
+                  ))}
+              </div>
+            </div>
+          </div>
+        </Section>
+      </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-border/50 bg-card/40">
+      <footer className="border-t border-hairline bg-card/40">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-10 sm:flex-row">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="grid h-7 w-7 place-items-center rounded-md bg-brand text-primary-foreground text-xs font-bold">MB</span>
-            © {new Date().getFullYear()} Manoj Barad · Senior Mobile Application Architect
+          <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+            <span className="grid h-7 w-7 place-items-center rounded-md bg-brand text-xs font-bold text-primary-foreground">
+              MB
+            </span>
+            © {new Date().getFullYear()} Manoj Barad · Independent senior mobile engineer
           </div>
-          <div className="flex items-center gap-4 text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition"><Linkedin className="h-4 w-4" /></a>
-            <a href="#" className="hover:text-foreground transition"><Github className="h-4 w-4" /></a>
-            <a href="mailto:hello@manojbarad.com" className="hover:text-foreground transition"><Mail className="h-4 w-4" /></a>
+          <div className="flex items-center gap-2">
+            {[
+              { href: WHATSAPP, icon: MessageCircle, label: "WhatsApp" },
+              { href: CONTACT.linkedin, icon: Linkedin, label: "LinkedIn" },
+              { href: CONTACT.github, icon: Github, label: "GitHub" },
+              { href: CONTACT.upwork, icon: ExternalLink, label: "Upwork" },
+              { href: MAILTO, icon: Mail, label: "Email" },
+            ]
+              .filter((s) => s.href)
+              .map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  aria-label={s.label}
+                  target={s.href.startsWith("http") ? "_blank" : undefined}
+                  rel={s.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-hairline bg-surface text-muted-foreground transition hover:border-teal/25 hover:text-foreground"
+                >
+                  <s.icon className="h-4 w-4" />
+                </a>
+              ))}
           </div>
         </div>
       </footer>

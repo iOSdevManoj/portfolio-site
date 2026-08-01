@@ -10,7 +10,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
@@ -35,7 +34,7 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    console.error("Root error boundary:", error);
   }, [error]);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -43,7 +42,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <h1 className="text-xl font-semibold">This page didn't load</h1>
         <p className="mt-2 text-sm text-muted-foreground">Try refreshing.</p>
         <button
-          onClick={() => { router.invalidate(); reset(); }}
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
           className="mt-6 rounded-full bg-brand px-5 py-2.5 text-sm font-medium text-primary-foreground"
         >
           Try again
@@ -53,8 +55,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-const TITLE = "Manoj Barad — Senior Mobile Application Architect | iOS, Flutter, AI, Healthcare";
-const DESCRIPTION = "Senior Mobile Application Architect with 12+ years building enterprise iOS, Flutter, AI, BLE, IoT and Healthcare applications for startups and Fortune 500 companies.";
+const SITE_URL = "https://portfolio-site-roan-mu-47.vercel.app";
+const TITLE = "Manoj Barad — Senior iOS & Flutter Engineer | Healthcare, BLE, AI";
+const DESCRIPTION =
+  "Independent senior mobile engineer with 12+ years building iOS and Flutter apps for healthcare, BLE/IoT hardware and AI products. Work directly with the engineer — no agency layer.";
+// Social preview. Replace with a 1200×630 image in /public once one exists.
+const OG_IMAGE = `${SITE_URL}/og-cover.png`;
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
@@ -64,30 +70,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: TITLE },
       { name: "description", content: DESCRIPTION },
       { name: "author", content: "Manoj Barad" },
-      { name: "keywords", content: "Senior iOS Developer, Mobile Architect, Swift, SwiftUI, Flutter, Healthcare Apps, BLE, IoT, AI Integration, OpenAI, ChatGPT, HealthKit, HIPAA, Enterprise Mobile" },
+      {
+        name: "keywords",
+        content:
+          "Freelance iOS Developer, Senior iOS Engineer, Swift, SwiftUI, Flutter Developer, Healthcare Apps, BLE, CoreBluetooth, IoT, AI Integration, OpenAI, HealthKit, HIPAA, Hire iOS Developer",
+      },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Manoj Barad" },
+      { property: "og:image", content: OG_IMAGE },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
+      { name: "twitter:image", content: OG_IMAGE },
       { name: "theme-color", content: "#0D4F5C" },
-      { title: "Manoj" },
-      { property: "og:title", content: "Manoj" },
-      { name: "twitter:title", content: "Manoj" },
-      { name: "description", content: "Portfolio" },
-      { property: "og:description", content: "Portfolio" },
-      { name: "twitter:description", content: "Portfolio" },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5a715f98-df21-4ac8-800d-08cfe3bb2425/id-preview-ff64dc21--83d9e0fd-4d32-4dc8-bed1-6cfb5140b9a4.lovable.app-1783620094573.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5a715f98-df21-4ac8-800d-08cfe3bb2425/id-preview-ff64dc21--83d9e0fd-4d32-4dc8-bed1-6cfb5140b9a4.lovable.app-1783620094573.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+      },
     ],
     scripts: [
       {
@@ -96,11 +103,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "Person",
           name: "Manoj Barad",
-          jobTitle: "Senior Mobile Application Architect",
+          jobTitle: "Senior Mobile Engineer",
+          url: SITE_URL,
+          image: OG_IMAGE,
           description: DESCRIPTION,
-          knowsAbout: ["iOS Development", "Swift", "SwiftUI", "Flutter", "Healthcare Apps", "BLE", "IoT", "AI Integration", "OpenAI", "Mobile Architecture"],
+          address: { "@type": "PostalAddress", addressLocality: "Ahmedabad", addressCountry: "IN" },
+          knowsAbout: [
+            "iOS Development",
+            "Swift",
+            "SwiftUI",
+            "Flutter",
+            "Healthcare Apps",
+            "Bluetooth Low Energy",
+            "IoT",
+            "AI Integration",
+            "OpenAI",
+            "Mobile Architecture",
+          ],
           sameAs: [
             "https://www.upwork.com/freelancers/~011df072813255b527",
+            "https://github.com/iOSdevManoj",
           ],
         }),
       },

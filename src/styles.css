@@ -20,6 +20,8 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
@@ -33,6 +35,7 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
+  --color-hairline: var(--hairline);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-teal: var(--teal);
@@ -42,49 +45,58 @@
 }
 
 :root {
-  --radius: 0.875rem;
+  --radius: 0.75rem;
 
-  /* Premium dark-first palette: deep ink + teal + amber */
-  --background: oklch(0.16 0.02 240);
-  --foreground: oklch(0.98 0.005 240);
+  /* Restrained, enterprise-leaning dark palette: neutral slate ink + one
+     confident teal accent. Amber is a highlight only — never a surface, never
+     a headline gradient. */
+  --background: oklch(0.145 0.011 250);
+  --foreground: oklch(0.97 0.004 250);
 
-  --card: oklch(0.22 0.025 240);
-  --card-foreground: oklch(0.98 0.005 240);
+  --card: oklch(0.185 0.013 250);
+  --card-foreground: oklch(0.97 0.004 250);
 
-  --popover: oklch(0.22 0.025 240);
-  --popover-foreground: oklch(0.98 0.005 240);
+  --surface: oklch(0.2 0.013 250);
+  --surface-strong: oklch(0.235 0.015 250);
 
-  --primary: oklch(0.72 0.14 195);
-  --primary-foreground: oklch(0.15 0.02 240);
+  --popover: oklch(0.185 0.013 250);
+  --popover-foreground: oklch(0.97 0.004 250);
 
-  --secondary: oklch(0.28 0.03 240);
-  --secondary-foreground: oklch(0.98 0.005 240);
+  --primary: oklch(0.74 0.125 196);
+  --primary-foreground: oklch(0.14 0.015 250);
 
-  --muted: oklch(0.26 0.025 240);
-  --muted-foreground: oklch(0.72 0.02 240);
+  --secondary: oklch(0.26 0.016 250);
+  --secondary-foreground: oklch(0.97 0.004 250);
 
-  --accent: oklch(0.78 0.15 75);
-  --accent-foreground: oklch(0.15 0.02 240);
+  --muted: oklch(0.24 0.014 250);
+  --muted-foreground: oklch(0.72 0.016 250);
 
-  --destructive: oklch(0.62 0.22 25);
+  --accent: oklch(0.8 0.13 78);
+  --accent-foreground: oklch(0.14 0.015 250);
+
+  --destructive: oklch(0.62 0.21 25);
   --destructive-foreground: oklch(0.98 0 0);
 
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.72 0.14 195);
+  --border: oklch(1 0 0 / 9%);
+  --hairline: oklch(1 0 0 / 7%);
+  --input: oklch(1 0 0 / 11%);
+  --ring: oklch(0.74 0.125 196);
 
-  --teal: oklch(0.72 0.14 195);
-  --teal-soft: oklch(0.72 0.14 195 / 0.15);
-  --amber: oklch(0.82 0.16 78);
-  --amber-soft: oklch(0.82 0.16 78 / 0.15);
+  --teal: oklch(0.76 0.115 196);
+  --teal-soft: oklch(0.74 0.125 196 / 0.13);
+  --amber: oklch(0.82 0.13 78);
+  --amber-soft: oklch(0.82 0.13 78 / 0.13);
 
-  --gradient-hero: radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.72 0.14 195 / 0.25), transparent 70%),
-    radial-gradient(ellipse 60% 50% at 100% 30%, oklch(0.82 0.16 78 / 0.15), transparent 70%),
-    linear-gradient(180deg, oklch(0.16 0.02 240) 0%, oklch(0.13 0.02 240) 100%);
-  --gradient-brand: linear-gradient(135deg, oklch(0.72 0.14 195) 0%, oklch(0.82 0.16 78) 100%);
-  --shadow-glow: 0 20px 60px -20px oklch(0.72 0.14 195 / 0.4);
-  --shadow-glow-amber: 0 20px 60px -20px oklch(0.82 0.16 78 / 0.4);
-  --shadow-card: 0 12px 40px -12px oklch(0 0 0 / 0.5);
+  /* Calmer hero: a single teal wash instead of the teal→amber sunset. */
+  --gradient-hero:
+    radial-gradient(ellipse 90% 55% at 50% -10%, oklch(0.74 0.125 196 / 0.18), transparent 65%),
+    linear-gradient(180deg, oklch(0.165 0.013 250) 0%, oklch(0.145 0.011 250) 100%);
+  --gradient-brand: linear-gradient(120deg, oklch(0.79 0.105 202) 0%, oklch(0.71 0.13 192) 100%);
+  --gradient-accent: linear-gradient(120deg, oklch(0.76 0.115 196) 0%, oklch(0.82 0.13 78) 100%);
+
+  --shadow-glow: 0 18px 44px -22px oklch(0.74 0.125 196 / 0.55);
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.4), 0 14px 40px -18px oklch(0 0 0 / 0.6);
+  --shadow-lift: 0 1px 2px oklch(0 0 0 / 0.4), 0 24px 60px -24px oklch(0 0 0 / 0.75);
 }
 
 @layer base {
@@ -93,6 +105,8 @@
   }
   html {
     scroll-behavior: smooth;
+    /* Keeps anchored sections clear of the fixed header. */
+    scroll-padding-top: 6rem;
   }
   body {
     background: var(--background);
@@ -100,22 +114,48 @@
     font-family: var(--font-sans);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  h1, h2, h3, h4, h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  ::selection {
+    background: oklch(0.74 0.125 196 / 0.3);
   }
 }
 
+/* ---------- surfaces ---------- */
+
+/* Solid, low-noise card. Preferred over `glass` for text-dense sections —
+   translucency over a busy backdrop costs contrast. */
+@utility card-surface {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+}
+
 @utility glass {
-  background: linear-gradient(135deg, oklch(1 0 0 / 0.06), oklch(1 0 0 / 0.02));
-  border: 1px solid oklch(1 0 0 / 0.1);
+  background: linear-gradient(135deg, oklch(1 0 0 / 0.05), oklch(1 0 0 / 0.02));
+  border: 1px solid oklch(1 0 0 / 0.08);
   backdrop-filter: blur(20px) saturate(140%);
 }
 
 @utility glass-strong {
-  background: linear-gradient(135deg, oklch(1 0 0 / 0.1), oklch(1 0 0 / 0.04));
-  border: 1px solid oklch(1 0 0 / 0.14);
+  background: linear-gradient(135deg, oklch(1 0 0 / 0.09), oklch(1 0 0 / 0.035));
+  border: 1px solid oklch(1 0 0 / 0.12);
   backdrop-filter: blur(24px) saturate(160%);
 }
 
@@ -138,37 +178,187 @@
   box-shadow: var(--shadow-glow);
 }
 
-@utility shadow-glow-amber {
-  box-shadow: var(--shadow-glow-amber);
-}
-
 @utility shadow-card {
   box-shadow: var(--shadow-card);
 }
 
+@utility shadow-lift {
+  box-shadow: var(--shadow-lift);
+}
+
 @utility grid-bg {
   background-image:
-    linear-gradient(oklch(1 0 0 / 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(1 0 0 / 0.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black, transparent);
+    linear-gradient(oklch(1 0 0 / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(1 0 0 / 0.03) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 25%, black, transparent);
+}
+
+/* The source headshot has a bright studio backdrop that glares against a dark
+   page. Tones it into the palette without going full duotone (skin stays real). */
+@utility portrait-tone {
+  filter: brightness(0.96) contrast(1.04) saturate(0.94);
+}
+
+/* ---------- water bubbles (project cluster) ---------- */
+
+/* A real soap/water bubble: a bright specular hotspot up-left, a coloured
+   refraction pooling down-right, an inset top rim where light catches the
+   film, and a soft teal bloom bleeding through the underside. */
+@utility bubble-glass {
+  /* Per-bubble water hue, overridden inline. Kept in the cool aqua band
+     (160–250) so the cluster varies like real water without turning into the
+     random primaries of a generic bubble chart. */
+  --bubble-hue: 196;
+
+  background:
+    /* specular hotspot — sells the sphere */
+    radial-gradient(
+      circle at 30% 20%,
+      oklch(1 0 0 / 0.26) 0%,
+      oklch(1 0 0 / 0.08) 16%,
+      transparent 40%
+    ),
+    /* the water body itself, pooling toward the lower rim */
+      radial-gradient(
+        circle at 70% 76%,
+        oklch(0.7 0.14 var(--bubble-hue) / 0.36) 0%,
+        transparent 58%
+      ),
+    /* secondary refraction, hue-shifted like light splitting through the film */
+      radial-gradient(
+        circle at 22% 84%,
+        oklch(0.76 0.13 calc(var(--bubble-hue) + 45) / 0.24) 0%,
+        transparent 52%
+      ),
+    /* surface film */
+      linear-gradient(
+        160deg,
+        oklch(1 0 0 / 0.1) 0%,
+        oklch(1 0 0 / 0.02) 45%,
+        oklch(1 0 0 / 0.07) 100%
+      );
+  backdrop-filter: blur(16px) saturate(165%);
+  border: 1px solid oklch(0.85 0.06 var(--bubble-hue) / 0.22);
+  box-shadow:
+    inset 0 2px 2px oklch(1 0 0 / 0.3),
+    inset 0 -26px 40px -22px oklch(0.7 0.14 var(--bubble-hue) / 0.55),
+    inset 0 0 46px oklch(1 0 0 / 0.035),
+    0 22px 55px -22px oklch(0 0 0 / 0.7),
+    0 0 40px -14px oklch(0.7 0.14 var(--bubble-hue) / 0.4);
+}
+
+/* Soap-film iridescence: a slowly rotating rainbow confined to the rim by a
+   radial mask. This is the detail that reads as "bubble" rather than "glass
+   circle" — keep the alpha low or it looks like an oil slick. */
+@utility bubble-iridescence {
+  background: conic-gradient(
+    from 200deg,
+    oklch(0.82 0.13 200 / 0.34),
+    oklch(0.86 0.12 165 / 0.22),
+    oklch(0.88 0.11 95 / 0.16),
+    oklch(0.82 0.13 330 / 0.24),
+    oklch(0.8 0.14 265 / 0.3),
+    oklch(0.82 0.13 200 / 0.34)
+  );
+  mask-image: radial-gradient(circle, transparent 64%, black 82%, black 100%);
+  animation: iridescence-spin 20s linear infinite;
+}
+
+@keyframes iridescence-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Organic surface tension — the outline breathes instead of sitting as a
+   perfect circle. Kept tiny; anything larger reads as a wobbling blob. */
+@keyframes bubble-wobble {
+  0%,
+  100% {
+    border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%;
+  }
+  33% {
+    border-radius: 53% 47% 48% 52% / 49% 53% 47% 51%;
+  }
+  66% {
+    border-radius: 47% 53% 52% 48% / 53% 47% 51% 49%;
+  }
+}
+
+@keyframes bubble-rise {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-120vh) translateX(24px);
+    opacity: 0;
+  }
+}
+
+@utility bubble-wobble {
+  animation: bubble-wobble 12s ease-in-out infinite;
+}
+
+@utility bubble-rise {
+  animation: bubble-rise 22s linear infinite;
+}
+
+/* Animating border-radius repaints the backdrop-filter region every frame.
+   With nine bubbles on screen that is the most expensive thing on the page,
+   so phones get the glass without the wobble — and a lighter blur. */
+@media (max-width: 640px) {
+  .bubble-wobble {
+    animation: none;
+  }
+  .bubble-glass {
+    backdrop-filter: blur(10px) saturate(150%);
+  }
+  .bubble-iridescence {
+    animation: none;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0) }
-  50% { transform: translateY(-12px) }
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0 }
-  100% { background-position: 200% 0 }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 @keyframes marquee {
-  0% { transform: translateX(0) }
-  100% { transform: translateX(-50%) }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 @utility animate-float {
   animation: float 6s ease-in-out infinite;
 }
 @utility animate-marquee {
-  animation: marquee 40s linear infinite;
+  animation: marquee 45s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
