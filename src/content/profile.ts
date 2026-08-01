@@ -59,70 +59,79 @@ export const CONTACT = {
 /** Shown in the hero status pill. Update this — a stale date reads worse than none. */
 export const AVAILABILITY = "Taking on new projects from September 2026";
 
-export const MAILTO = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
-  "Project enquiry — mobile build",
-)}&body=${encodeURIComponent(
-  [
-    "Hi Manoj,",
-    "",
-    "What we're building:",
-    "Platforms (iOS / Android / both):",
-    "Rough timeline:",
-    "Budget range:",
-    "",
-    "Thanks,",
-  ].join("\n"),
-)}`;
-
 /**
- * Scheduling request. Used when CONTACT.calendar is empty so "Book a call"
- * always does something useful: it asks for the three things needed to confirm
- * a slot without a second round-trip — timezone, two or three windows, and what
- * the call is about.
+ * Prefilled enquiry templates.
+ *
+ * A mailto body is the client's first impression, so it is written as a real
+ * business email rather than a form dump: greeting, grouped headings, a blank
+ * line under every question so there is somewhere to type, and a proper
+ * sign-off. Sender details are asked for explicitly — an enquiry with no name,
+ * company or time zone costs a round-trip before anything useful can be said.
+ *
+ * Keep it to seven questions; longer templates get abandoned.
  */
-const CALL_MAILTO = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
-  "Call request — 30 minutes",
-)}&body=${encodeURIComponent(
-  [
-    "Hi Manoj,",
-    "",
-    "I'd like to book a 30-minute call.",
-    "",
-    "My time zone:",
-    "Two or three times that suit me:",
-    "  1.",
-    "  2.",
-    "  3.",
-    "",
-    "What I'd like to discuss:",
-    "",
-    "Thanks,",
-  ].join("\n"),
-)}`;
+function composeMail(subject: string, blocks: string[][]) {
+  // One blank line inside a block, two between blocks — consistent everywhere.
+  const body = blocks.flatMap((b, i) => (i === 0 ? b : ["", ...b])).join("\n");
+  return (
+    `mailto:${CONTACT.email}` +
+    `?subject=${encodeURIComponent(subject)}` +
+    `&body=${encodeURIComponent(body)}`
+  );
+}
+
+/** A heading followed by labelled questions, each with a line to write on. */
+function section(title: string, questions: string[]) {
+  return [title, ...questions.flatMap((q) => [`${q}:`, ""])];
+}
+
+function enquiryBlocks(interest?: string) {
+  return [
+    ["Hi Manoj,"],
+    // The interest goes on its own line. Splicing it into the sentence produced
+    // "would like to discuss ongoing engineering partner", which reads broken.
+    interest
+      ? [
+          "I saw your portfolio and would like to discuss a project.",
+          "",
+          `Interested in: ${interest}`,
+        ]
+      : ["I saw your portfolio and would like to discuss a project."],
+    section("PROJECT", [
+      "What we are building",
+      "Platforms needed (iOS / Android / Web)",
+      "Current stage (idea, designs ready, or existing app)",
+    ]),
+    section("PRACTICAL DETAILS", ["Target timeline", "Budget range"]),
+    section("ABOUT ME", ["Name and company", "Location and time zone"]),
+    ["Looking forward to hearing from you.", "", "Best regards,"],
+  ];
+}
+
+/** Generic enquiry, used by the primary "Start a project" buttons. */
+export const MAILTO = composeMail("Project enquiry", enquiryBlocks());
 
 /**
- * Builds a prefilled enquiry naming the engagement or budget level the client
- * clicked. The first email then arrives already scoped, which removes a
- * round-trip before anything useful can be said back.
+ * Enquiry naming the budget level or engagement model the client clicked, so
+ * the first message arrives already scoped.
  */
 export function enquiryHref(topic: string) {
-  return `mailto:${CONTACT.email}?subject=${encodeURIComponent(
-    `Enquiry — ${topic}`,
-  )}&body=${encodeURIComponent(
-    [
-      "Hi Manoj,",
-      "",
-      `I'm interested in: ${topic}`,
-      "",
-      "What we're building:",
-      "Platforms (iOS / Android / web):",
-      "Timeline:",
-      "Budget range:",
-      "",
-      "Thanks,",
-    ].join("\n"),
-  )}`;
+  return composeMail(`Project enquiry — ${topic}`, enquiryBlocks(topic));
 }
+
+/**
+ * Scheduling request, used when CONTACT.calendar is empty so "Book a call"
+ * always does something useful. It gathers the three things needed to confirm a
+ * slot without a second round-trip: time zone, a few windows, and the topic.
+ */
+const CALL_MAILTO = composeMail("Call request — 30 minutes", [
+  ["Hi Manoj,"],
+  ["I would like to book a 30-minute call to discuss a project."],
+  ["PREFERRED TIMES", "My time zone:", "", "Times that suit me:", "  1.", "  2.", "  3."],
+  section("TOPIC", ["What I would like to discuss"]),
+  section("ABOUT ME", ["Name and company"]),
+  ["Please confirm whichever slot suits you best.", "", "Best regards,"],
+]);
 
 /** Real calendar when configured, structured email request otherwise. */
 export const BOOKING_HREF = CONTACT.calendar || CALL_MAILTO;
@@ -131,7 +140,7 @@ export const BOOKING_IS_EXTERNAL = Boolean(CONTACT.calendar);
 /** wa.me needs the number in international format with no "+", spaces or dashes. */
 export const WHATSAPP = CONTACT.whatsapp
   ? `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(
-      "Hi Manoj — I found your portfolio. I'd like to discuss a mobile project.",
+      "Hi Manoj, I found your portfolio and would like to discuss a project. Is now a good time?",
     )}`
   : "";
 
