@@ -42,10 +42,12 @@ Client-side boundary errors are logged to the console from the root `errorCompon
 
 `__root.tsx` owns the HTML shell (`RootShell`), all SEO head tags, JSON-LD Person schema, Google Fonts links, and the 404 / error components.
 
-**The site is a single page.** `src/routes/index.tsx` is the entire portfolio, organised as config → data → primitives → one `Home` component. To change copy, edit the data, not the JSX.
+**All content lives in `src/content/profile.ts`**, separate from presentation. Both `src/routes/index.tsx` (landing page) and `src/routes/cv.tsx` (print CV) render from these exports, so a fact is edited in exactly one place. To change copy, edit that module, not the JSX.
 
-- **`CONTACT` / `AVAILABILITY` (top of file)** — the single source of truth for every link, address and the hero status pill. Links render conditionally: an empty string in `CONTACT` *hides* that button instead of emitting a dead `href="#"`. Keep it that way; the page should never ship a dead anchor. `MAILTO` is derived from `CONTACT.email` with a prefilled enquiry template.
-- **Data arrays** — `STATS`, `TRUST`, `EXPERTISE`, `INDUSTRIES`, `PROJECTS`, `TIMELINE`, `TECH`, `ENGAGEMENTS`, `PROCESS`, `WHY`, `TESTIMONIALS`, `FAQ`.
+`src/routes/cv.tsx` is a print-first CV; `CONTACT.resume` points at `/cv` so the "CV" button opens a page the browser saves as PDF. It is `noindex` — a CV page can otherwise outrank the portfolio for his name.
+
+- **`CONTACT` / `AVAILABILITY`** — the single source of truth for every link, address and the hero status pill. Links render conditionally: an empty string in `CONTACT` *hides* that button instead of emitting a dead `href="#"`. Keep it that way; the page should never ship a dead anchor. `MAILTO` is derived from `CONTACT.email` with a prefilled enquiry template.
+- **Data arrays** — `STATS`, `TRUST`, `PLATFORMS`, `EXPERTISE`, `INDUSTRIES`, `PROJECTS`, `TIMELINE`, `TECH`, `ENGAGEMENTS`, `PROCESS`, `WHY`, `TESTIMONIALS`, `FAQ`.
 - **`TESTIMONIALS` is intentionally empty** and the section is wrapped in `{TESTIMONIALS.length > 0 && ...}`. Only real, attributable client quotes go in it — do not repopulate it with generated filler.
 - **`PROJECTS[].featured`** controls the initial six cards; the rest appear behind the "Show all" toggle. `PROJECTS[].outcome` is the client-facing result line. The current values are capability statements derived from each project's own `desc` — defensible without a metric. If Manoj supplies real measured numbers, they belong here and are strictly better; keep them short, since this row has the least horizontal room in the bubble. `duration` is optional and its row is hidden when blank. Every project is delivered work, so the "Completed" badge is hardcoded in `ProjectBubble`, not per-record.
 - **Primitives**: `Section`, `SectionHeading` (label + title + gradient accent + sub), `Reveal`, `Counter`, `ProjectBubble`.
@@ -61,6 +63,10 @@ Four motions run at once, deliberately desynchronised by `index` so the cluster 
 **Geometry is the constraint here.** Text in a circle must stay inside the inscribed radius or `overflow-hidden` clips it. Verified worst case is **0.93 of the radius fully expanded** (0.94 on mobile). The `max-w-*` values on three rows exist purely to hold that margin, because each sits where the circle narrows — `max-w-[85%]` on the tag, `max-w-[88%]` on the tech row, and `max-w-[76%]` on `outcome`, which is tightest because it is the lowest row in the stack. Adding the outcome text pushed three bubbles to 1.01 (clipping) before that constraint was applied. If you lengthen `desc`, add a tech pill, or reduce `px-[14%]`, re-measure before shipping: `scrollHeight` is useless for this (the article is `justify-center`, so top overflow goes uncounted) — measure child bounding-box corners against the centre instead.
 
 Under 640px the wobble is disabled and the blur drops to 10px: animating `border-radius` repaints the `backdrop-filter` region every frame, and nine bubbles of that is the heaviest thing on the page.
+
+Positioning covers five platforms — iOS, Android, Flutter, React Native and web — so copy should not narrow back to "iOS & Flutter". `PLATFORMS` renders the strip under the stats band that answers "can he build my thing?" before any scrolling.
+
+Icons in `public/` (`favicon.ico`, `apple-touch-icon.png`, `icon-192/512.png`) are a generated MB monogram on the brand gradient, replacing Lovable's heart. Regenerate with Pillow if the brand colour changes.
 
 Section ids drive the fixed nav, `NAV_LINKS` and `scroll-padding-top`: `#top`, `#about`, `#expertise`, `#work`, `#experience`, `#engagements`, `#process`, `#faq`, `#contact`. Renaming one means updating `NAV_LINKS` too.
 
