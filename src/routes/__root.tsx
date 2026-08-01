@@ -56,9 +56,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 const SITE_URL = "https://portfolio-site-roan-mu-47.vercel.app";
-const TITLE = "Manoj Barad — Senior iOS & Flutter Engineer | Healthcare, BLE, AI";
+const TITLE = "Manoj Barad — Senior Mobile & Web Engineer | iOS, Android, Flutter, React Native";
 const DESCRIPTION =
-  "Independent senior mobile engineer with 12+ years building iOS and Flutter apps for healthcare, BLE/IoT hardware and AI products. Work directly with the engineer — no agency layer.";
+  "Senior mobile and web engineer with 12+ years building iOS, Android, Flutter and React Native apps, with the web dashboards and APIs behind them. Healthcare, Bluetooth hardware and AI products. You work directly with the engineer.";
 // Social preview. Replace with a 1200×630 image in /public once one exists.
 const OG_IMAGE = `${SITE_URL}/og-cover.png`;
 
@@ -73,7 +73,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "keywords",
         content:
-          "Freelance iOS Developer, Senior iOS Engineer, Swift, SwiftUI, Flutter Developer, Healthcare Apps, BLE, CoreBluetooth, IoT, AI Integration, OpenAI, HealthKit, HIPAA, Hire iOS Developer",
+          "Freelance iOS Developer, Android Developer, Flutter Developer, React Native Developer, Senior Mobile Engineer, Web Developer, Swift, SwiftUI, Kotlin, Jetpack Compose, TypeScript, React, Node.js, Healthcare Apps, BLE, CoreBluetooth, IoT, AI Integration, HealthKit, HIPAA, Hire Mobile Developer India",
       },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
@@ -88,7 +88,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -103,21 +104,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "Person",
           name: "Manoj Barad",
-          jobTitle: "Senior Mobile Engineer",
+          jobTitle: "Senior Mobile & Web Engineer",
           url: SITE_URL,
           image: OG_IMAGE,
           description: DESCRIPTION,
           address: { "@type": "PostalAddress", addressLocality: "Ahmedabad", addressCountry: "IN" },
           knowsAbout: [
             "iOS Development",
+            "Android Development",
             "Swift",
             "SwiftUI",
+            "Kotlin",
             "Flutter",
+            "React Native",
+            "Web Development",
+            "React",
+            "Node.js",
             "Healthcare Apps",
             "Bluetooth Low Energy",
             "IoT",
             "AI Integration",
-            "OpenAI",
             "Mobile Architecture",
           ],
           sameAs: [
