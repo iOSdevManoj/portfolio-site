@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   ExternalLink,
   ChevronDown,
+  CalendarDays,
   Clock,
   Menu,
   X,
@@ -31,6 +32,8 @@ export const Route = createFileRoute("/")({
 
 import {
   AVAILABILITY,
+  BOOKING_HREF,
+  BOOKING_IS_EXTERNAL,
   CONTACT,
   ENGAGEMENTS,
   EXPERTISE,
@@ -1161,16 +1164,16 @@ function Home() {
                     <Mail className="h-4 w-4" /> Email me
                     <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                   </a>
-                  {CONTACT.calendar && (
-                    <a
-                      href={CONTACT.calendar}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 text-sm font-semibold transition hover:bg-surface-strong"
-                    >
-                      Book a 30-min call
-                    </a>
-                  )}
+                  {/* Always live: a real calendar when one is configured, a
+                      structured scheduling email otherwise. */}
+                  <a
+                    href={BOOKING_HREF}
+                    target={BOOKING_IS_EXTERNAL ? "_blank" : undefined}
+                    rel={BOOKING_IS_EXTERNAL ? "noopener noreferrer" : undefined}
+                    className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 text-sm font-semibold transition hover:border-teal/30 hover:bg-surface-strong"
+                  >
+                    <CalendarDays className="h-4 w-4 text-teal" /> Book a 30-min call
+                  </a>
                   {WHATSAPP && (
                     <a
                       href={WHATSAPP}

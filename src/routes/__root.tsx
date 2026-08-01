@@ -59,7 +59,7 @@ const SITE_URL = "https://portfolio-site-roan-mu-47.vercel.app";
 const TITLE = "Manoj Barad — Senior Mobile & Web Engineer | iOS, Android, Flutter, React Native";
 const DESCRIPTION =
   "Senior mobile and web engineer with 12+ years building iOS, Android, Flutter and React Native apps, with the web dashboards and APIs behind them. Healthcare, Bluetooth hardware and AI products. You work directly with the engineer.";
-// Social preview. Replace with a 1200×630 image in /public once one exists.
+// Social preview, 1200x630. Regenerate with `python3 scripts/make-og-cover.py`.
 const OG_IMAGE = `${SITE_URL}/og-cover.png`;
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -80,10 +80,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Manoj Barad" },
       { property: "og:image", content: OG_IMAGE },
+      // LinkedIn and Slack lay the card out before the image loads; without
+      // explicit dimensions they fall back to a small thumbnail.
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:type", content: "image/png" },
+      {
+        property: "og:image:alt",
+        content:
+          "Manoj Barad — Senior Mobile & Web Engineer. iOS, Android, Flutter, React Native, Web.",
+      },
+      { property: "og:locale", content: "en_US" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: TITLE },
       { name: "twitter:description", content: DESCRIPTION },
       { name: "twitter:image", content: OG_IMAGE },
+      {
+        name: "twitter:image:alt",
+        content:
+          "Manoj Barad — Senior Mobile & Web Engineer. iOS, Android, Flutter, React Native, Web.",
+      },
       { name: "theme-color", content: "#0D4F5C" },
     ],
     links: [

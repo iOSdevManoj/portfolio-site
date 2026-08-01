@@ -36,7 +36,10 @@ export const CONTACT = {
   email: "manojbarad@gmail.com",
   whatsapp: "919426675556", // digits only, no "+" — wa.me rejects the plus sign
   whatsappDisplay: "+91 94266 75556",
-  calendar: "", // Calendly / Cal.com booking URL
+  // Optional. Paste a Cal.com / Calendly URL here and the "Book a call" button
+  // switches to real self-serve booking. Until then it falls back to the
+  // scheduling email below, so the button is never dead.
+  calendar: "",
   resume: "/cv", // print-ready CV page; the browser saves it as PDF
   linkedin: "https://www.linkedin.com/in/manoj-barad--ios",
   github: "https://github.com/iOSdevManoj",
@@ -62,6 +65,36 @@ export const MAILTO = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
     "Thanks,",
   ].join("\n"),
 )}`;
+
+/**
+ * Scheduling request. Used when CONTACT.calendar is empty so "Book a call"
+ * always does something useful: it asks for the three things needed to confirm
+ * a slot without a second round-trip — timezone, two or three windows, and what
+ * the call is about.
+ */
+const CALL_MAILTO = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
+  "Call request — 30 minutes",
+)}&body=${encodeURIComponent(
+  [
+    "Hi Manoj,",
+    "",
+    "I'd like to book a 30-minute call.",
+    "",
+    "My time zone:",
+    "Two or three times that suit me:",
+    "  1.",
+    "  2.",
+    "  3.",
+    "",
+    "What I'd like to discuss:",
+    "",
+    "Thanks,",
+  ].join("\n"),
+)}`;
+
+/** Real calendar when configured, structured email request otherwise. */
+export const BOOKING_HREF = CONTACT.calendar || CALL_MAILTO;
+export const BOOKING_IS_EXTERNAL = Boolean(CONTACT.calendar);
 
 /** wa.me needs the number in international format with no "+", spaces or dashes. */
 export const WHATSAPP = CONTACT.whatsapp
