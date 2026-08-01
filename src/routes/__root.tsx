@@ -121,6 +121,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             "Mobile Architecture",
           ],
           sameAs: [
+            "https://www.linkedin.com/in/manoj-barad--ios",
             "https://www.upwork.com/freelancers/~011df072813255b527",
             "https://github.com/iOSdevManoj",
           ],

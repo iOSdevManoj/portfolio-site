@@ -57,7 +57,7 @@ const CONTACT = {
   whatsappDisplay: "+91 94266 75556",
   calendar: "", // Calendly / Cal.com booking URL
   resume: "", // public PDF URL, e.g. "/manoj-barad-cv.pdf" in /public
-  linkedin: "", // TODO: add once the profile URL is confirmed
+  linkedin: "https://www.linkedin.com/in/manoj-barad--ios",
   github: "https://github.com/iOSdevManoj",
   upwork: "https://www.upwork.com/freelancers/~011df072813255b527?viewMode=1",
   location: "Ahmedabad, India",
@@ -189,7 +189,8 @@ const PROJECTS = [
     tag: "Access control · BLE",
     featured: true,
     desc: "Bluetooth access-control app authenticating phone-to-reader over ECC key exchange, with offline credential caching so doors keep opening when the network doesn't.",
-    outcome: "",
+    outcome:
+      "Doors stay operable through network outages — credentials authenticate locally over ECC",
     tech: ["SwiftUI", "CoreBluetooth", "ECC auth"],
   },
   {
@@ -199,7 +200,8 @@ const PROJECTS = [
     tag: "Payments · IoT",
     featured: true,
     desc: "Vending-machine companion app over encrypted BLE — in-app wallet top-up, product selection, and a dispense handshake that reconciles correctly when the connection drops mid-transaction.",
-    outcome: "",
+    outcome:
+      "No lost payments when a connection drops — the dispense handshake reconciles every transaction",
     tech: ["SwiftUI", "CoreBluetooth", "Wallet payments", "Lottie"],
   },
   {
@@ -209,7 +211,7 @@ const PROJECTS = [
     tag: "Healthcare · BLE",
     featured: true,
     desc: "Rehabilitation platform synchronising electrical muscle stimulation with guided mobility exercises — real-time device control driven by session protocols clinicians define and patients follow unsupervised.",
-    outcome: "",
+    outcome: "Clinician-defined therapy protocols run safely at home, without supervision",
     tech: ["SwiftUI", "CoreBluetooth", "Session protocols"],
   },
   {
@@ -219,7 +221,7 @@ const PROJECTS = [
     tag: "Automotive · Safety",
     featured: true,
     desc: "Driver-safety app that signals upcoming speed cameras with peripheral light cues instead of notifications, so the warning never pulls a driver's eyes off the road. Built on TomTom® data.",
-    outcome: "",
+    outcome: "Hazard warnings delivered without taking a driver's eyes off the road",
     tech: ["Swift", "MVVM", "CoreLocation", "TomTom"],
   },
   {
@@ -229,7 +231,7 @@ const PROJECTS = [
     tag: "Entertainment · Flutter",
     featured: true,
     desc: "Film and TV recommendation app whose matching sharpens as it learns a viewer's taste. One Flutter codebase, shipped to both stores.",
-    outcome: "Live on the App Store",
+    outcome: "Live on the App Store — one Flutter codebase shipped to both stores",
     tech: ["Flutter", "Firebase", "REST", "Social auth"],
   },
   {
@@ -239,7 +241,7 @@ const PROJECTS = [
     tag: "Enterprise · BLE",
     featured: true,
     desc: "Tool-tracking app for job sites: BLE tags report location in real time, with map clustering and spiderfied pins that stay readable when twenty tools sit in the same van.",
-    outcome: "",
+    outcome: "Crews locate tools on site in real time, even when a dozen sit in the same vehicle",
     tech: ["React Native", "BLE", "Map clustering"],
   },
   {
@@ -249,7 +251,7 @@ const PROJECTS = [
     tag: "IoT · Cross-platform",
     featured: false,
     desc: "Cross-platform controller for BLE smart hardware, with animated device states driven directly by live characteristic updates.",
-    outcome: "",
+    outcome: "One React Native codebase driving BLE hardware on both iOS and Android",
     tech: ["React Native", "BLE", "Lottie"],
   },
   {
@@ -259,7 +261,7 @@ const PROJECTS = [
     tag: "Social · Media",
     featured: false,
     desc: "Location-memory app for capturing places, architecture and street art, with in-app media editing and social sharing.",
-    outcome: "",
+    outcome: "Capture, edit and share a location without ever leaving the app",
     tech: ["Swift", "MVVM", "Media editing", "Social auth"],
   },
   {
@@ -269,7 +271,7 @@ const PROJECTS = [
     tag: "EV · Payments",
     featured: false,
     desc: "EV charge-point companion: network access, session history charts and in-app payment for drivers mid-journey.",
-    outcome: "",
+    outcome: "Drivers find, use and pay for a charge point in a single session",
     tech: ["Swift", "Core Data", "Charts", "Payments"],
   },
 ];
@@ -738,8 +740,12 @@ function ProjectBubble({
             )}
           </span>
 
+          {/* Lowest row in the stack, so it sits where the circle is narrowest —
+              it needs the tightest inset of anything in the bubble. */}
           {p.outcome && (
-            <span className="relative mt-2 text-[10px] font-medium text-teal">{p.outcome}</span>
+            <span className="relative mt-2 max-w-[76%] text-[10px] font-medium leading-snug text-teal">
+              {p.outcome}
+            </span>
           )}
         </motion.article>
       </motion.div>
