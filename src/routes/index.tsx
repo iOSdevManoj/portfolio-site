@@ -33,9 +33,11 @@ export const Route = createFileRoute("/")({
 import {
   AVAILABILITY,
   BOOKING_HREF,
+  BUDGET_GUIDE,
   BOOKING_IS_EXTERNAL,
   CONTACT,
   ENGAGEMENTS,
+  enquiryHref,
   EXPERTISE,
   FAQ,
   INDUSTRIES,
@@ -354,7 +356,8 @@ const NAV_LINKS = [
   { href: "#work", label: "Work" },
   { href: "#expertise", label: "Expertise" },
   { href: "#experience", label: "Experience" },
-  { href: "#engagements", label: "Engagements" },
+  { href: "#investment", label: "Pricing" },
+  { href: "#engagements", label: "Work with me" },
   { href: "#faq", label: "FAQ" },
 ];
 
@@ -991,38 +994,128 @@ function Home() {
           </div>
         </Section>
 
-        {/* ENGAGEMENTS */}
+        {/* INVESTMENT GUIDE — calibrates scope to budget before the ask */}
+        <Section id="investment">
+          <Reveal>
+            <SectionHeading
+              label="Investment guide"
+              title="What different budgets"
+              accent="typically cover"
+              sub="Every project is scoped on its own terms, so these are examples rather than packages. They exist to save you a guessing step: find the level closest to what you have in mind, and you will know roughly what that buys before we ever speak."
+            />
+          </Reveal>
+
+          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {BUDGET_GUIDE.map((b, i) => (
+              <Reveal key={b.range} delay={(i % 3) * 0.06}>
+                <div
+                  className={`relative flex h-full flex-col rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 ${
+                    b.highlight
+                      ? "border border-teal/35 bg-surface shadow-glow"
+                      : "card-surface hover:border-teal/20"
+                  }`}
+                >
+                  {b.highlight && (
+                    <span className="absolute -top-3 left-6 rounded-full bg-brand px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary-foreground">
+                      Most requested
+                    </span>
+                  )}
+
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-teal-soft text-teal">
+                      <b.icon className="h-5 w-5" />
+                    </div>
+                    <div className="font-display text-xl font-bold text-gradient">{b.range}</div>
+                  </div>
+
+                  <h3 className="mt-4 font-display text-base font-bold leading-snug">{b.name}</h3>
+                  <div className="mt-1 text-xs font-medium text-amber">{b.bestFor}</div>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{b.desc}</p>
+
+                  <ul className="mt-5 flex-1 space-y-2 border-t border-hairline pt-5">
+                    {b.includes.map((it) => (
+                      <li key={it} className="flex items-start gap-2.5 text-sm">
+                        <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal" />
+                        <span className="text-foreground/85">{it}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {b.adds && (
+                    <div className="mt-5 rounded-xl bg-teal-soft px-4 py-3 text-xs leading-relaxed text-foreground/85">
+                      {b.adds}
+                    </div>
+                  )}
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* The point of the whole section, stated plainly. */}
+          <Reveal delay={0.1}>
+            <div className="mt-8 grid gap-5 rounded-2xl card-surface p-7 sm:p-9 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+              <div>
+                <h3 className="font-display text-xl font-bold">
+                  The standard does not change with the budget. The scope does.
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  You get the same engineering at every level — the same review, the same handling
+                  of edge cases, the same code your next engineer can pick up. What grows with
+                  budget is how much gets built, and how much strategy, architecture, testing,
+                  documentation, deployment and post-launch support surrounds it. If a budget cannot
+                  cover something properly, I will tell you before we start.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                <a
+                  href={enquiryHref("Custom estimate")}
+                  className="group inline-flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90"
+                >
+                  Get a custom estimate
+                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                </a>
+                <p className="text-center text-xs text-muted-foreground">
+                  Send your goals, timeline and constraints — you get a written scope and a fixed
+                  price back, usually within a day.
+                </p>
+              </div>
+            </div>
+          </Reveal>
+        </Section>
+
+        {/* ENGAGEMENTS — how the work is shaped, ordered by commitment */}
         <Section id="engagements">
           <Reveal>
             <SectionHeading
-              label="Engagements"
-              title="Three ways to"
-              accent="work with me"
-              sub="Pick the one closest to your situation — it makes the first conversation much faster."
+              label="Ways to work with me"
+              title="Four ways to"
+              accent="start"
+              sub="The budget sets the scope; this sets the shape of the engagement. They run from the smallest commitment to the largest — most people start at the left and move right as trust builds."
             />
           </Reveal>
-          <div className="mt-14 grid gap-5 lg:grid-cols-3">
+          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {ENGAGEMENTS.map((e, i) => (
-              <Reveal key={e.name} delay={i * 0.07}>
+              <Reveal key={e.name} delay={i * 0.06}>
                 <div
-                  className={`relative flex h-full flex-col rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1 ${
+                  className={`relative flex h-full flex-col rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 ${
                     e.highlight
                       ? "border border-teal/35 bg-surface shadow-glow"
                       : "card-surface hover:border-teal/20"
                   }`}
                 >
                   {e.highlight && (
-                    <span className="absolute -top-3 left-7 rounded-full bg-brand px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary-foreground">
-                      Most common
+                    <span className="absolute -top-3 left-6 rounded-full bg-brand px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary-foreground">
+                      Where most end up
                     </span>
                   )}
                   <div className="grid h-11 w-11 place-items-center rounded-xl bg-teal-soft text-teal">
                     <e.icon className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-5 font-display text-xl font-bold">{e.name}</h3>
-                  <div className="mt-1 text-xs font-medium text-amber">{e.best}</div>
+                  <h3 className="mt-5 font-display text-lg font-bold leading-snug">{e.name}</h3>
+                  <div className="mt-1.5 text-xs font-medium text-amber">{e.best}</div>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{e.desc}</p>
-                  <ul className="mt-5 space-y-2.5 border-t border-hairline pt-5">
+
+                  <ul className="mt-5 flex-1 space-y-2.5 border-t border-hairline pt-5">
                     {e.points.map((pt) => (
                       <li key={pt} className="flex items-start gap-2.5 text-sm">
                         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
@@ -1030,22 +1123,29 @@ function Home() {
                       </li>
                     ))}
                   </ul>
+
+                  <div className="mt-5 border-t border-hairline pt-4">
+                    <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                      How it is priced
+                    </div>
+                    <div className="mt-1 text-sm font-medium">{e.pricing}</div>
+                  </div>
+
                   <a
-                    href="#contact"
-                    className={`mt-6 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition ${
+                    href={enquiryHref(e.name)}
+                    className={`mt-5 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition ${
                       e.highlight
                         ? "bg-brand text-primary-foreground shadow-glow hover:opacity-90"
                         : "border border-border bg-surface hover:bg-surface-strong"
                     }`}
                   >
-                    Enquire <ArrowRight className="h-4 w-4" />
+                    Start here <ArrowRight className="h-4 w-4" />
                   </a>
                 </div>
               </Reveal>
             ))}
           </div>
         </Section>
-
         {/* PROCESS */}
         <Section id="process" className="!py-20">
           <Reveal>

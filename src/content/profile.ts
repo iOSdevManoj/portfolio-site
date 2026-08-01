@@ -5,6 +5,14 @@
  */
 import {
   Activity,
+  Blocks,
+  Boxes,
+  Compass,
+  Gauge,
+  Handshake,
+  LifeBuoy,
+  Search,
+  Wrench,
   Bluetooth,
   Brain,
   Building2,
@@ -92,6 +100,30 @@ const CALL_MAILTO = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
   ].join("\n"),
 )}`;
 
+/**
+ * Builds a prefilled enquiry naming the engagement or budget level the client
+ * clicked. The first email then arrives already scoped, which removes a
+ * round-trip before anything useful can be said back.
+ */
+export function enquiryHref(topic: string) {
+  return `mailto:${CONTACT.email}?subject=${encodeURIComponent(
+    `Enquiry — ${topic}`,
+  )}&body=${encodeURIComponent(
+    [
+      "Hi Manoj,",
+      "",
+      `I'm interested in: ${topic}`,
+      "",
+      "What we're building:",
+      "Platforms (iOS / Android / web):",
+      "Timeline:",
+      "Budget range:",
+      "",
+      "Thanks,",
+    ].join("\n"),
+  )}`;
+}
+
 /** Real calendar when configured, structured email request otherwise. */
 export const BOOKING_HREF = CONTACT.calendar || CALL_MAILTO;
 export const BOOKING_IS_EXTERNAL = Boolean(CONTACT.calendar);
@@ -118,22 +150,22 @@ export const TRUST = [
   {
     icon: UserCheck,
     title: "You work with me directly",
-    desc: "No account manager, no shared team, no junior developer taking over halfway.",
+    desc: "The person you speak to is the person writing the code. Nobody is handed your project halfway through.",
   },
   {
     icon: Globe,
     title: "Overlap with your hours",
-    desc: "Daily overlap with US, UK, EU and MENA teams. Async-first by default.",
+    desc: "Several hours of overlap every day with US, UK, EU and MENA teams, and a written update whether or not we speak.",
   },
   {
     icon: FileCheck,
     title: "NDA and IP, sorted upfront",
-    desc: "NDA before scoping. Full IP transfer on delivery. Private repos throughout.",
+    desc: "NDA before we discuss specifics, your private repository throughout, and full ownership of the code transferred on delivery.",
   },
   {
     icon: Clock,
-    title: "Scope quoted before work starts",
-    desc: "You approve a written scope and milestones. No open-ended hourly drift.",
+    title: "You know the price before I start",
+    desc: "Scope and milestones agreed in writing and priced up front, so the cost is not something you discover as we go.",
   },
 ];
 
@@ -379,46 +411,174 @@ export const TECH = [
   "Figma",
 ];
 
-/** Three ways to buy. Clients self-select, which makes the first email far better. */
-export const ENGAGEMENTS = [
+/**
+ * What a given budget typically covers. Deliberately framed as scope, not rate:
+ * the engineering standard is identical at every level — what grows is how much
+ * gets built, and how much planning, testing, documentation and support wraps
+ * around it. `adds` states what each level gains over the one below, so the
+ * ladder reads as increasing value rather than increasing price.
+ */
+export const BUDGET_GUIDE = [
   {
-    icon: Rocket,
-    name: "Fixed-scope build",
-    best: "Best for: MVPs and defined feature sets",
-    desc: "We agree the scope, architecture and milestones in writing before a line of code. You get a working, releasable app at each milestone.",
-    points: [
-      "Written scope and fixed milestones",
-      "Architecture documented up front",
-      "App Store or Play release included",
-      "30 days of post-launch fixes",
+    icon: Wrench,
+    range: "$20 – $50",
+    name: "Quick fixes and second opinions",
+    bestFor: "An existing app, one specific problem",
+    desc: "A contained piece of work on a codebase that already runs. Useful when you need something corrected properly rather than worked around.",
+    includes: [
+      "Bug fixes and crash investigation",
+      "UI and layout corrections",
+      "Small code changes on an existing screen",
+      "A short consultation or code read-through",
     ],
+    adds: "",
     highlight: false,
   },
   {
-    icon: Zap,
-    name: "Monthly retainer",
-    best: "Best for: teams shipping continuously",
-    desc: "Reserved capacity every month. Weekly demos, direct access on your Slack, and a roadmap we adjust together as the product moves.",
-    points: [
-      "Reserved days per month",
-      "Weekly demo, not a status deck",
-      "Direct Slack / Teams access",
-      "Roadmap and architecture input",
+    icon: Blocks,
+    range: "$50 – $100",
+    name: "A single feature or integration",
+    bestFor: "Adding one well-defined capability",
+    desc: "One feature, built properly and merged into your codebase — including the error and edge cases that usually get skipped at this size.",
+    includes: [
+      "A self-contained feature, end to end",
+      "Third-party or REST API integration",
+      "Firebase setup and problem-solving",
+      "Reusable SwiftUI or Compose components",
+      "Targeted performance work",
     ],
+    adds: "Everything above, plus code written to be extended rather than patched",
+    highlight: false,
+  },
+  {
+    icon: Boxes,
+    range: "$100 – $250",
+    name: "Substantial features and structural work",
+    bestFor: "Work that touches how the app is built",
+    desc: "Features large enough to affect architecture, or focused refactoring that makes the next six months of work cheaper.",
+    includes: [
+      "Authentication and user session handling",
+      "Bluetooth / BLE device integration",
+      "AI and LLM feature integration",
+      "Refactoring and architecture improvements",
+      "Data layer and offline behaviour",
+    ],
+    adds: "Everything above, plus a written explanation of the approach and why",
+    highlight: false,
+  },
+  {
+    icon: Layers,
+    range: "$250 – $500",
+    name: "A complete module, delivered",
+    bestFor: "A whole area of the product, finished",
+    desc: "An entire part of the app built to production standard — designed, implemented, tested and documented so your team can maintain it without me.",
+    includes: [
+      "Complete modules and multi-screen flows",
+      "Subscriptions and payment integration",
+      "Dashboards and reporting screens",
+      "Offline storage and sync",
+      "Automated tests and handover documentation",
+    ],
+    adds: "Everything above, plus tests and documentation as part of delivery",
+    highlight: false,
+  },
+  {
+    icon: Rocket,
+    range: "$500 – $1,000",
+    name: "An MVP, built and launched",
+    bestFor: "Getting a first version into users' hands",
+    desc: "A working product rather than a prototype: the architecture is chosen for what comes after launch, not just for the demo.",
+    includes: [
+      "Multi-screen application, built end to end",
+      "Backend integration and data modelling",
+      "Architecture designed to grow with the product",
+      "Deployment and release pipeline",
+      "App Store and Play submission support",
+    ],
+    adds: "Everything above, plus architecture planning and a real release",
     highlight: true,
   },
   {
-    icon: Cpu,
-    name: "Architecture review",
-    best: "Best for: an app that has stopped scaling",
-    desc: "A short, fixed engagement on an existing codebase. You get a written assessment and a prioritised plan you can execute with or without me.",
-    points: [
-      "Codebase and architecture audit",
-      "Crash, performance and battery review",
-      "Written, prioritised remediation plan",
-      "Fixed price, fixed duration",
+    icon: Handshake,
+    range: "$1,000 +",
+    name: "Full product and ongoing partnership",
+    bestFor: "Products where mobile is the business",
+    desc: "Complete ownership of the mobile and web build, with the technical judgement that goes around it — what to build, what to defer, and what will hurt in a year.",
+    includes: [
+      "End-to-end application development",
+      "AI, HealthKit, BLE and IoT integration",
+      "Backend and system architecture",
+      "CI/CD and automated release pipelines",
+      "Technical consulting and roadmap input",
+      "Long-term maintenance and dedicated support",
     ],
+    adds: "Everything above, plus strategy, ongoing support and a long-term technical partner",
     highlight: false,
+  },
+];
+
+/**
+ * How an engagement is shaped, as opposed to what it costs. Ordered by
+ * commitment so a cautious client meets the low-risk entry point first, and
+ * every card names who it suits, what arrives, and how it is priced — the three
+ * questions that otherwise become the first email.
+ */
+export const ENGAGEMENTS = [
+  {
+    icon: Search,
+    name: "Consultation and code review",
+    best: "Best when you need an answer before you commit",
+    desc: "A short, fixed engagement on an existing codebase or a plan you are weighing up. You get an honest technical read and a prioritised list of what to do — usable whether or not you hire me for the work.",
+    points: [
+      "Architecture and code quality assessment",
+      "Crash, performance and battery findings",
+      "Prioritised, written recommendations",
+      "Fixed fee, fixed duration",
+    ],
+    pricing: "Fixed fee, agreed before we start",
+    highlight: false,
+  },
+  {
+    icon: Blocks,
+    name: "Feature or module build",
+    best: "Best when the product exists and the next piece is clear",
+    desc: "A defined piece of work delivered into your codebase — designed, built, tested and documented, following your existing conventions rather than imposing mine.",
+    points: [
+      "Written scope agreed before any code",
+      "Built to your conventions and review process",
+      "Tests and documentation included",
+      "Merged and released with your team",
+    ],
+    pricing: "Fixed price per scope",
+    highlight: false,
+  },
+  {
+    icon: Rocket,
+    name: "End-to-end product build",
+    best: "Best when you are starting from nothing",
+    desc: "From first call to store listing. Architecture, build and release handled by one engineer, with a working version you can install at every milestone.",
+    points: [
+      "Architecture and milestone plan up front",
+      "Installable build every week",
+      "App Store and Play submission handled",
+      "30 days of fixes after launch",
+    ],
+    pricing: "Milestone-based, quoted after scoping",
+    highlight: false,
+  },
+  {
+    icon: Handshake,
+    name: "Ongoing engineering partner",
+    best: "Best when mobile is central to the business",
+    desc: "Reserved capacity each month, with the continuity that comes from one engineer who already knows your codebase. Most clients who start with a build end up here.",
+    points: [
+      "Reserved days each month",
+      "Direct access on Slack or Teams",
+      "Roadmap and architecture input",
+      "Priority on urgent production issues",
+    ],
+    pricing: "Monthly retainer, per reserved day",
+    highlight: true,
   },
 ];
 
@@ -426,35 +586,35 @@ export const PROCESS = [
   {
     step: "01",
     title: "Call & scope",
-    desc: "A 30-minute call on the product, users and constraints. You leave with a written scope, a timeline and a price — free, no obligation.",
+    desc: "Thirty minutes on what you are building, who it is for and what constrains it. You leave with a written scope, a timeline and a price. No charge, and no obligation to continue.",
   },
   {
     step: "02",
     title: "Architecture",
-    desc: "System design, tech choices, third-party and compliance risks flagged early, and the milestone plan we'll hold ourselves to.",
+    desc: "System design, tech choices, third-party and compliance risks flagged early, and the milestone plan we hold ourselves to.",
   },
   {
     step: "03",
     title: "Build & demo",
-    desc: "Weekly builds you can install and use. Clean, reviewed, documented code in your repo from day one — never a big-bang handover.",
+    desc: "A build you can install and use every week, and code landing in your repository from the first day. You are never waiting until the end to find out what you bought.",
   },
   {
     step: "04",
     title: "Ship & support",
-    desc: "Store submission, review responses, phased rollout and monitoring. Then 30 days of fixes, or an ongoing retainer if you want me to stay.",
+    desc: "Submission, review responses and phased rollout, then thirty days of fixes included. If you want me to stay on, a retainer keeps the same engineer on the codebase.",
   },
 ];
 
 export const WHY = [
   "You speak directly with the engineer writing your code, every day",
-  "Architecture you can read, audit and hand to your next hire",
+  "Code your next engineer can read, extend and take over without a rewrite",
   "Bluetooth and connected-hardware experience most mobile developers do not have",
   "Patient data handled to HIPAA-conscious standards, not guesswork",
   "AI features built with fallbacks and cost controls, not just a demonstration",
   "App Store submissions handled end to end, rejections included",
   "A working build you can install every week, so progress is never a guess",
-  "Fixed, written scope before the work starts",
-  "Support after launch, not a disappearing act",
+  "A written scope and a price before the work starts",
+  "Reachable after launch, when most of the real questions arrive",
 ];
 
 /**
@@ -478,7 +638,11 @@ export const FAQ = [
   },
   {
     q: "What does a project typically cost?",
-    a: "Fixed-scope builds are quoted after a free scoping call, based on the milestone plan we agree. Retainers are priced per reserved day and billed monthly. Architecture reviews are a flat fee. You'll always have the number in writing before anything starts.",
+    a: "It depends on scope rather than on a rate card, so the guide above shows what different budgets usually cover — from a contained fix through to a full product build. Those are examples, not packages. After a short call I send a written scope and a fixed price, and you decide from there.",
+  },
+  {
+    q: "Does a smaller budget mean lower-quality work?",
+    a: "No. The engineering standard is the same at every level — the same review, the same care with edge cases, the same code you can hand to someone else. What changes with budget is how much gets built, and how much planning, testing, documentation and post-launch support wraps around it. If a budget cannot cover something properly I will say so before we start, rather than quietly deliver a thinner version.",
   },
   {
     q: "What time zones do you cover?",

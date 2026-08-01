@@ -47,7 +47,10 @@ Client-side boundary errors are logged to the console from the root `errorCompon
 `src/routes/cv.tsx` is a print-first CV; `CONTACT.resume` points at `/cv` so the "CV" button opens a page the browser saves as PDF. It is `noindex` — a CV page can otherwise outrank the portfolio for his name.
 
 - **`CONTACT` / `AVAILABILITY`** — the single source of truth for every link, address and the hero status pill. Links render conditionally: an empty string in `CONTACT` *hides* that button instead of emitting a dead `href="#"`. Keep it that way; the page should never ship a dead anchor. `MAILTO` is derived from `CONTACT.email` with a prefilled enquiry template.
-- **Data arrays** — `STATS`, `TRUST`, `PLATFORMS`, `EXPERTISE`, `INDUSTRIES`, `PROJECTS`, `TIMELINE`, `TECH`, `ENGAGEMENTS`, `PROCESS`, `WHY`, `TESTIMONIALS`, `FAQ`.
+- **Data arrays** — `STATS`, `TRUST`, `PLATFORMS`, `EXPERTISE`, `INDUSTRIES`, `PROJECTS`, `TIMELINE`, `TECH`, `BUDGET_GUIDE`, `ENGAGEMENTS`, `PROCESS`, `WHY`, `TESTIMONIALS`, `FAQ`.
+- **`BUDGET_GUIDE`** (section `#investment`) maps budget to scope. Its framing is deliberate and should not be flattened into a price list: the engineering standard is constant across tiers and only *scope* grows, which is what the closing panel states. `adds` describes what each tier gains over the one below, so the ladder reads as accumulating value. These are examples, never packages — the copy says so in two places because it is the thing clients most often misread.
+- **`ENGAGEMENTS`** (section `#engagements`) is the *shape* of the work, not its price; the two sections answer different questions and should stay distinct. Four models ordered by commitment, low to high, so a cautious buyer meets the cheapest entry first. Each card carries `best` (who it suits), `points` (what arrives) and `pricing` (how it is charged) — the three questions that otherwise become the first email.
+- **`enquiryHref(topic)`** builds a prefilled mailto naming the tier or model clicked, so the first message arrives already scoped.
 - **`TESTIMONIALS` is intentionally empty** and the section is wrapped in `{TESTIMONIALS.length > 0 && ...}`. Only real, attributable client quotes go in it — do not repopulate it with generated filler.
 - **`PROJECTS[].featured`** controls the initial six cards; the rest appear behind the "Show all" toggle. `PROJECTS[].outcome` is the client-facing result line. The current values are capability statements derived from each project's own `desc` — defensible without a metric. If Manoj supplies real measured numbers, they belong here and are strictly better; keep them short, since this row has the least horizontal room in the bubble. `duration` is optional and its row is hidden when blank. Every project is delivered work, so the "Completed" badge is hardcoded in `ProjectBubble`, not per-record.
 - **Primitives**: `Section`, `SectionHeading` (label + title + gradient accent + sub), `Reveal`, `Counter`, `ProjectBubble`.
@@ -68,7 +71,7 @@ Positioning covers five platforms — iOS, Android, Flutter, React Native and we
 
 Icons in `public/` (`favicon.ico`, `apple-touch-icon.png`, `icon-192/512.png`) are a generated MB monogram on the brand gradient, replacing Lovable's heart. Regenerate with Pillow if the brand colour changes.
 
-Section ids drive the fixed nav, `NAV_LINKS` and `scroll-padding-top`: `#top`, `#about`, `#expertise`, `#work`, `#experience`, `#engagements`, `#process`, `#faq`, `#contact`. Renaming one means updating `NAV_LINKS` too.
+Section ids drive the fixed nav, `NAV_LINKS` and `scroll-padding-top`: `#top`, `#about`, `#expertise`, `#work`, `#experience`, `#investment`, `#engagements`, `#process`, `#faq`, `#contact`. Renaming one means updating `NAV_LINKS` too.
 
 ## Styling
 
